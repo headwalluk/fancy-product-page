@@ -62,6 +62,8 @@ class Plugin extends Component
     {
         $this->settings = new Settings($this->name, $this->version);
 
+        add_action('init', [$this, 'load_textdomain']);
+
         add_filter('post_type_link', [$this, 'override_product_permalink'], 10, 4);
 
         // add_action('template_redirect', [$this, 'maybe_redirect_to_fancy_page']);
@@ -74,6 +76,19 @@ class Plugin extends Component
         }
 
         add_filter('woocommerce_structured_data_type_for_page', [$this, 'structured_data_types_for_page'], 10, 1);
+    }
+
+    /**
+     * Load the plugin's translations from the bundled `languages/` directory.
+     *
+     * Hooked to `init` (not earlier) per WordPress 6.7+ guidance on just-in-time
+     * text-domain loading.
+     *
+     * @return void
+     */
+    public function load_textdomain()
+    {
+        load_plugin_textdomain('fancy-product-page', false, dirname(plugin_basename(PP_FPP_FILE)) . '/languages');
     }
 
     /**

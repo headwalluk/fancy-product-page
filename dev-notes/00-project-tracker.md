@@ -27,7 +27,7 @@ This tracker covers the June 2026 modernisation effort: removing the bundled Pow
 - [ ] Run `phpcs` against the new `phpcs.xml` and address WPCS formatting (Milestone 4 follow-up).
 - [ ] Decide the fate of disabled code: `maybe_redirect_to_fancy_page()` (unhooked 301 redirect) and `output_structured_data()` (dead). Either wire up behind a setting or remove.
 - [ ] `Settings` class is vestigial — no admin menu, no options defined. Either implement a real settings page or remove the scaffolding.
-- [ ] Plugin header lists `Domain Path: /languages` but there is no `languages/` directory and no `.pot` file.
+- [x] Plugin header lists `Domain Path: /languages` — `languages/` now populated (`.pot` + 8 locales) and text domain loaded on `init`. ✅
 - [ ] Align code to WordPress Coding Standards (WPCS) — current code uses tight, non-WPCS formatting.
 
 ---
@@ -161,7 +161,7 @@ Functions:
 - [x] `phpcs.xml` — WordPress standards with prefixes `fancy_product_page`, `pp_fpp`, `Fancy_Product_Page`.
 - [x] `docs/` — `architecture.md`, `hooks.md`, `shortcode.md`, `usage.md`.
 - [x] Completed plugin header (`Requires at least` / `Requires PHP` / `Requires Plugins` / `WC requires at least`) and bumped version to 1.1.0.
-- [ ] `languages/` — generate a `.pot` (header declares `Domain Path: /languages`).
+- [x] `languages/` — `.pot` + per-locale `.po`/`.mo` added (8 locales), and `Plugin::load_textdomain()` wired on `init` to load them. ✅
 - [ ] Run `phpcs` and resolve findings. **Baseline (10 Jun 2026):** 1527 errors / 72 warnings, of which **phpcbf can auto-fix 1398** (mostly WPCS whitespace + Yoda conditions). Recommend a dedicated `style:` commit running `phpcbf` then hand-fixing the ~129 remainder — kept separate from functional changes for reviewability.
 
 ---

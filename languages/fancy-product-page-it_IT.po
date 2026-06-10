@@ -1,0 +1,74 @@
+# Copyright (C) 2026 Headwall WP Tutorials
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Language: it_IT\n"
+"Project-Id-Version: Fancy Product Page 1.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/fancy-product-page\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-06-10T10:30:56+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: fancy-product-page\n"
+
+#. Plugin Name of the plugin
+#: fancy-product-page.php
+#: includes/class-product-meta-box.php:43
+msgid "Fancy Product Page"
+msgstr "Pagina del prodotto di lusso"
+
+#. Plugin URI of the plugin
+#: fancy-product-page.php
+msgid "https://github.com/headwalluk/fancy-product-page"
+msgstr "https://github.com/headwalluk/fancy-product-page"
+
+#. Description of the plugin
+#: fancy-product-page.php
+msgid "Display a WooCommerce product using an ordinary WordPress Page or Post in place of the default single-product template."
+msgstr "Visualizza un prodotto WooCommerce utilizzando una normale pagina o un normale articolo di WordPress al posto del modello predefinito per la pagina del singolo prodotto."
+
+#. Author of the plugin
+#: fancy-product-page.php
+msgid "Headwall WP Tutorials"
+msgstr "Tutorial su Headwall WP"
+
+#. Author URI of the plugin
+#: fancy-product-page.php
+msgid "https://wp-tutorials.tech/"
+msgstr "https://wp-tutorials.tech/"
+
+#: admin-templates/product-meta-box.php:20
+msgid "Standard WooCommerce product page"
+msgstr "Pagina standard del prodotto WooCommerce"
+
+#: admin-templates/product-meta-box.php:35
+msgid "No title"
+msgstr "Senza titolo"
+
+#: admin-templates/product-meta-box.php:48
+msgid "Fancy product page"
+msgstr "Pagina del prodotto di design"
+
+#: admin-templates/product-meta-box.php:51
+msgid "Choose a page (not a post) to use for this product in the frontend."
+msgstr "Scegli una pagina (non un articolo) da utilizzare per questo prodotto nell'interfaccia pubblica."
+
+#: includes/class-settings.php:41
+msgid "Not authorized"
+msgstr "Non autorizzato"
+
+#: includes/class-settings.php:63
+msgid "Save Changes"
+msgstr "Salva le modifiche"
+
+#: includes/shortcode-add-to-cart-button.php:75
+msgid "Failed to determine the product"
+msgstr "Impossibile identificare il prodotto"
+
+#: includes/shortcode-add-to-cart-button.php:81
+msgid "Add to cart"
+msgstr "Aggiungi al carrello"

@@ -24,6 +24,7 @@ defined( 'WPINC' ) || die();
 const PP_FPP_NAME    = 'fancy-product-page';
 const PP_FPP_VERSION = '1.1.0';
 
+define( 'PP_FPP_FILE', __FILE__ );
 define( 'PP_FPP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PP_FPP_URL', plugin_dir_url( __FILE__ ) );
 define( 'PP_FPP_ADMIN_TEMPLATES_DIR', trailingslashit( PP_FPP_DIR . 'admin-templates' ) );

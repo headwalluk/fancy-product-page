@@ -1,0 +1,74 @@
+# Copyright (C) 2026 Headwall WP Tutorials
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Language: el_GR\n"
+"Project-Id-Version: Fancy Product Page 1.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/fancy-product-page\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-06-10T10:30:56+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: fancy-product-page\n"
+
+#. Plugin Name of the plugin
+#: fancy-product-page.php
+#: includes/class-product-meta-box.php:43
+msgid "Fancy Product Page"
+msgstr "Σελίδα προϊόντος με ιδιαίτερο στυλ"
+
+#. Plugin URI of the plugin
+#: fancy-product-page.php
+msgid "https://github.com/headwalluk/fancy-product-page"
+msgstr "https://github.com/headwalluk/fancy-product-page"
+
+#. Description of the plugin
+#: fancy-product-page.php
+msgid "Display a WooCommerce product using an ordinary WordPress Page or Post in place of the default single-product template."
+msgstr "Εμφάνιση ενός προϊόντος WooCommerce χρησιμοποιώντας μια απλή σελίδα ή ανάρτηση του WordPress αντί του προεπιλεγμένου προτύπου για μεμονωμένα προϊόντα."
+
+#. Author of the plugin
+#: fancy-product-page.php
+msgid "Headwall WP Tutorials"
+msgstr "Οδηγίες χρήσης του Headwall WP"
+
+#. Author URI of the plugin
+#: fancy-product-page.php
+msgid "https://wp-tutorials.tech/"
+msgstr "https://wp-tutorials.tech/"
+
+#: admin-templates/product-meta-box.php:20
+msgid "Standard WooCommerce product page"
+msgstr "Τυπική σελίδα προϊόντος WooCommerce"
+
+#: admin-templates/product-meta-box.php:35
+msgid "No title"
+msgstr "Χωρίς τίτλο"
+
+#: admin-templates/product-meta-box.php:48
+msgid "Fancy product page"
+msgstr "Σελίδα προϊόντος με ιδιαίτερο στυλ"
+
+#: admin-templates/product-meta-box.php:51
+msgid "Choose a page (not a post) to use for this product in the frontend."
+msgstr "Επιλέξτε μια σελίδα (όχι μια ανάρτηση) που θα εμφανίζεται για αυτό το προϊόν στο περιβάλλον χρήστη."
+
+#: includes/class-settings.php:41
+msgid "Not authorized"
+msgstr "Δεν επιτρέπεται"
+
+#: includes/class-settings.php:63
+msgid "Save Changes"
+msgstr "Αποθήκευση αλλαγών"
+
+#: includes/shortcode-add-to-cart-button.php:75
+msgid "Failed to determine the product"
+msgstr "Δεν ήταν δυνατό να προσδιοριστεί το προϊόν"
+
+#: includes/shortcode-add-to-cart-button.php:81
+msgid "Add to cart"
+msgstr "Προσθήκη στο καλάθι"
