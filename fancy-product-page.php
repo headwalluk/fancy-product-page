@@ -25,12 +25,15 @@ define( 'PP_FPP_PUBLIC_TEMPLATES_DIR', trailingslashit( PP_FPP_DIR . 'public-tem
 define( 'PP_FPP_ASSETS_DIR', trailingslashit( PP_FPP_DIR . 'assets' ) );
 define( 'PP_FPP_ASSETS_URL', trailingslashit( PP_FPP_URL . 'assets' ) );
 
-// Power Plugins
-require_once PP_FPP_DIR . 'pp-core.php';
-
 require_once PP_FPP_DIR . 'constants.php';
 require_once PP_FPP_DIR . 'functions-private.php';
 require_once PP_FPP_DIR . 'functions.php';
+require_once PP_FPP_DIR . 'includes/form-helpers.php';
+
+// Base classes (load before the concrete classes that extend them).
+require_once PP_FPP_DIR . 'includes/class-component.php';
+require_once PP_FPP_DIR . 'includes/class-meta-box.php';
+require_once PP_FPP_DIR . 'includes/class-settings-core.php';
 
 require_once PP_FPP_DIR . 'includes/class-settings.php';
 require_once PP_FPP_DIR . 'includes/class-product-meta-box.php';

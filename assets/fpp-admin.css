@@ -1,0 +1,35 @@
+/**
+ * Fancy Product Page - admin styles.
+ *
+ * Minimal styling for the product meta box (and the optional settings
+ * page). Replaces the styling previously pulled from the bundled Power
+ * Plugins library (pp-assets/pp-admin.css).
+ */
+
+.pp-wrap .pp-form-row {
+  margin: 1em 0 0;
+}
+
+.pp-wrap .pp-form-row label {
+  display: block;
+  font-weight: 600;
+}
+
+.pp-wrap .pp-help {
+  display: block;
+  margin-bottom: 0.4em;
+  font-style: italic;
+  color: #646970;
+}
+
+.pp-wrap .pp-form-row select,
+.pp-wrap .pp-form-row input[type='text'] {
+  max-width: 100%;
+}
+
+/* Settings page title (page is optional and not currently registered). */
+.pp-wrap h1 {
+  border-bottom: 2px solid #2271b1;
+  padding-bottom: 0.6em;
+  margin-bottom: 1em;
+}

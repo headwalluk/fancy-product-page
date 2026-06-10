@@ -33,7 +33,7 @@ foreach ($pages as $page) {
     );
 }
 
-echo pp_get_select_list_html(
+echo pp_fpp_get_select_list_html(
     META_FANCY_PRODUCT_PAGE_ID, // ...
     __('Fancy product page', 'fancy-product-page'),
     $all_pages,
