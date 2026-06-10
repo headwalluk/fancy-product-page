@@ -18,10 +18,35 @@ defined('WPINC') || die();
 
 abstract class Meta_Box
 {
+    /**
+     * Nonce action used to verify a save.
+     *
+     * @var string
+     */
     private $save_action;
+
+    /**
+     * Nonce field name rendered in the meta box.
+     *
+     * @var string
+     */
     private $nonce_field_name;
+
+    /**
+     * Post types this meta box is attached to.
+     *
+     * @var array
+     */
     private $post_types;
 
+    /**
+     * Constructor.
+     *
+     * @param string|array $post_types      Post type(s) the meta box attaches to.
+     *                                       A space-separated string or an array.
+     * @param string       $save_action     Optional nonce action; auto-derived when empty.
+     * @param string       $nonce_field_name Optional nonce field name; auto-derived when empty.
+     */
     public function __construct($post_types, string $save_action = '', string $nonce_field_name = '')
     {
         $this->save_action = $save_action;
@@ -44,21 +69,47 @@ abstract class Meta_Box
         }
     }
 
+    /**
+     * Get the post types this meta box is attached to.
+     *
+     * @return array
+     */
     public function get_post_types()
     {
         return $this->post_types;
     }
 
+    /**
+     * Output the meta box's nonce field.
+     *
+     * @return void
+     */
     public function render_nonce_field()
     {
         wp_nonce_field($this->save_action, $this->nonce_field_name);
     }
 
+    /**
+     * Is the current request a (nonce-valid) attempt to save this meta box?
+     *
+     * @return bool
+     */
     public function is_trying_to_save_meta_box()
     {
         return array_key_exists($this->nonce_field_name, $_POST) && wp_verify_nonce($_POST[$this->nonce_field_name], $this->save_action);
     }
 
+    /**
+     * Should this meta box be saved for the given post?
+     *
+     * Verifies the nonce, post type, edit capability, and that this is not an
+     * autosave.
+     *
+     * @param int      $post_id The post ID being saved.
+     * @param \WP_Post $post    The post object.
+     *
+     * @return bool
+     */
     public function is_saving_meta_box($post_id, $post)
     {
         $is_saving = false;

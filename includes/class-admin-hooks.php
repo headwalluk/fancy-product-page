@@ -1,16 +1,40 @@
 <?php
 
+/**
+ * Admin asset hooks.
+ *
+ * @package Fancy_Product_Page
+ */
+
 namespace Fancy_Product_Page;
 
 defined('WPINC') || die();
 
+/**
+ * Enqueues the plugin's admin assets on the relevant product screens.
+ */
 class Admin_Hooks extends Component
 {
+    /**
+     * Constructor.
+     *
+     * @param string $name    Plugin name/slug.
+     * @param string $version Plugin version.
+     */
     public function __construct(string $name, string $version)
     {
         parent::__construct($name, $version);
     }
 
+    /**
+     * Enqueue the admin stylesheet on the product add/edit/list screens.
+     *
+     * Callback for `admin_enqueue_scripts`.
+     *
+     * @param string $current_page The current admin page hook suffix.
+     *
+     * @return void
+     */
     public function admin_enqueue_scripts($current_page)
     {
         $are_assets_required = false;

@@ -15,6 +15,8 @@
  * Text Domain:       fancy-product-page
  * Domain Path:       /languages
  * WC requires at least: 6.0
+ *
+ * @package Fancy_Product_Page
  */
 
 defined( 'WPINC' ) || die();
@@ -47,6 +49,11 @@ require_once PP_FPP_DIR . 'includes/class-plugin.php';
 
 require_once PP_FPP_DIR . 'includes/shortcode-add-to-cart-button.php';
 
+/**
+ * Bootstrap the plugin: create the global plugin instance and run it.
+ *
+ * @return void
+ */
 function pp_fpp_plugin_run() {
 	global $pp_fpp_plugin;
 	$pp_fpp_plugin = new Fancy_Product_Page\Plugin( PP_FPP_NAME, PP_FPP_VERSION );

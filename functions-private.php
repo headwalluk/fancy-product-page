@@ -1,15 +1,38 @@
 <?php
 
+/**
+ * Private, namespaced helper functions for internal plugin use.
+ *
+ * @package Fancy_Product_Page
+ */
+
 namespace Fancy_Product_Page;
 
 defined('WPINC') || die();
 
+/**
+ * Get the plugin's settings controller from the global plugin instance.
+ *
+ * @return Settings The settings controller.
+ */
 function get_settings_controller()
 {
     global $pp_fpp_plugin;
     return $pp_fpp_plugin->get_settings_controller();
 }
 
+/**
+ * Resolve the fancy page/post ID associated with a product.
+ *
+ * When no product ID is given and the current request is a singular product,
+ * the current product is used. Returns 0 when WooCommerce is unavailable, the
+ * product is invalid, no mapping exists, or the mapped post type is not an
+ * allowed fancy-page type.
+ *
+ * @param int $product_id WooCommerce product ID. Defaults to the current product.
+ *
+ * @return int The associated page/post ID, or 0 if none.
+ */
 function get_fancy_product_page_id(int $product_id = 0): int
 {
     $post_id = 0;
@@ -36,6 +59,15 @@ function get_fancy_product_page_id(int $product_id = 0): int
     return $post_id;
 }
 
+/**
+ * Get the post types eligible to act as a fancy product page.
+ *
+ * Defaults to `page` and `post`, and is filterable via the
+ * `fancy_product_page_post_types` filter. The result is memoised in a global
+ * for the duration of the request.
+ *
+ * @return array List of post type slugs.
+ */
 function get_fancy_page_post_types(): array
 {
     global $pp_fpp_post_types;

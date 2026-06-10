@@ -1,13 +1,51 @@
 <?php
 
+/**
+ * Main plugin orchestrator.
+ *
+ * @package Fancy_Product_Page
+ */
+
 namespace Fancy_Product_Page;
 
 defined('WPINC') || die();
 
+/**
+ * Top-level plugin class.
+ *
+ * Registers every WordPress/WooCommerce hook the plugin uses (in {@see run()})
+ * and implements the permalink-override, SEO structured-data, and add-to-cart
+ * behaviour. Owns the lazily-constructed Settings and Admin_Hooks instances.
+ */
 class Plugin extends Component
 {
+    /**
+     * Product ID resolved for the current fancy page, or 0 if none.
+     *
+     * @var int
+     */
     private $page_product_id;
 
+    /**
+     * The settings controller.
+     *
+     * @var Settings
+     */
+    private $settings;
+
+    /**
+     * The admin hooks component (lazily instantiated).
+     *
+     * @var Admin_Hooks
+     */
+    private $admin_hooks;
+
+    /**
+     * Constructor.
+     *
+     * @param string $name    Plugin name/slug.
+     * @param string $version Plugin version.
+     */
     public function __construct($name, $version)
     {
         parent::__construct($name, $version);
@@ -15,6 +53,11 @@ class Plugin extends Component
         $this->page_product_id = 0;
     }
 
+    /**
+     * Register all WordPress/WooCommerce hooks.
+     *
+     * @return void
+     */
     public function run()
     {
         $this->settings = new Settings($this->name, $this->version);
@@ -33,6 +76,12 @@ class Plugin extends Component
         add_filter('woocommerce_structured_data_type_for_page', [$this, 'structured_data_types_for_page'], 10, 1);
     }
 
+    /**
+     * Admin bootstrap: wire admin asset hooks, register the meta box, and
+     * handle a settings save.
+     *
+     * @return void
+     */
     public function admin_init()
     {
         $admin_hooks = $this->get_admin_hooks();
@@ -44,6 +93,16 @@ class Plugin extends Component
         $this->settings->maybe_save_settings();
     }
 
+    /**
+     * Convert a non-numeric `add-to-cart` request value (a SKU) to a product ID.
+     *
+     * Runs on `wp_loaded` before WooCommerce processes the request, mutating
+     * `$_REQUEST['add-to-cart']` in place when a SKU resolves to a product.
+     *
+     * @param mixed $url Unused; passed by the `wp_loaded` action.
+     *
+     * @return void
+     */
     public function add_to_cart_action($url)
     {
         $sku = null;
@@ -61,6 +120,14 @@ class Plugin extends Component
         }
     }
 
+    /**
+     * On a fancy product page, generate WooCommerce structured data for the
+     * owning product and record its ID for {@see structured_data_types_for_page()}.
+     *
+     * Hooked to `wp`.
+     *
+     * @return void
+     */
     public function late_init()
     {
         if (!function_exists('WC')) {
@@ -93,13 +160,21 @@ class Plugin extends Component
         }
     }
 
-    private $settings;
+    /**
+     * Get the settings controller.
+     *
+     * @return Settings
+     */
     public function get_settings_controller()
     {
         return $this->settings;
     }
 
-    private $admin_hooks;
+    /**
+     * Get the admin hooks component, instantiating it on first use.
+     *
+     * @return Admin_Hooks
+     */
     public function get_admin_hooks()
     {
         if (is_null($this->admin_hooks)) {
@@ -109,6 +184,16 @@ class Plugin extends Component
         return $this->admin_hooks;
     }
 
+    /**
+     * Add `product` to the structured-data types for the current page when it
+     * is a fancy product page.
+     *
+     * Filter callback for `woocommerce_structured_data_type_for_page`.
+     *
+     * @param array $types Structured-data type slugs.
+     *
+     * @return array
+     */
     public function structured_data_types_for_page($types)
     {
         if ($this->page_product_id > 0) {
@@ -118,6 +203,13 @@ class Plugin extends Component
         return $types;
     }
 
+    /**
+     * Get the permalink of the fancy page associated with a product.
+     *
+     * @param int $product_id WooCommerce product ID. Defaults to the current product.
+     *
+     * @return string|null The fancy page permalink, or null if none.
+     */
     public function get_product_fancy_page_permalink(int $product_id = 0)
     {
         $permalink = null;
@@ -152,6 +244,18 @@ class Plugin extends Component
         return $permalink;
     }
 
+    /**
+     * Rewrite a product's permalink to its fancy page, if one is set.
+     *
+     * Filter callback for `post_type_link`.
+     *
+     * @param string   $post_link The post's permalink.
+     * @param \WP_Post $post      The post object.
+     * @param bool     $leavename Whether to keep the post name.
+     * @param bool     $sample    Whether this is a sample permalink.
+     *
+     * @return string
+     */
     public function override_product_permalink($post_link, $post, $leavename, $sample)
     {
         if (!empty(($fancy_product_page_permalink = $this->get_product_fancy_page_permalink($post->ID)))) {
@@ -161,6 +265,13 @@ class Plugin extends Component
         return $post_link;
     }
 
+    /**
+     * Redirect the current request to the product's fancy page.
+     *
+     * Not hooked by default; available for opt-in `template_redirect` use.
+     *
+     * @return void
+     */
     public function maybe_redirect_to_fancy_page()
     {
         if (!empty(($fancy_product_page_permalink = $this->get_product_fancy_page_permalink()))) {
@@ -169,6 +280,11 @@ class Plugin extends Component
         }
     }
 
+    /**
+     * Output WooCommerce structured data for the recorded product IDs.
+     *
+     * @return void
+     */
     public function output_structured_data()
     {
         if (empty($this->rendered_product_ids)) {

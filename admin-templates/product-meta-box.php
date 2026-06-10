@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Admin template: the "Fancy Product Page" meta box body.
+ *
+ * Rendered by {@see Product_Meta_Box::render()}, which provides `$post` (the
+ * product being edited) and `$settings` in scope. Outputs a select control
+ * listing the eligible pages/posts for this product.
+ *
+ * @package Fancy_Product_Page
+ */
+
 namespace Fancy_Product_Page;
 
 defined('WPINC') || die();

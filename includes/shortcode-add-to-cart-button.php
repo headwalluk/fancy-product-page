@@ -1,9 +1,28 @@
 <?php
 
+/**
+ * `[add_to_cart_btn]` shortcode.
+ *
+ * @package Fancy_Product_Page
+ */
+
 namespace Fancy_Product_Page;
 
 defined('WPINC') || die();
 
+/**
+ * Render a themed "Add to cart" button for a WooCommerce product.
+ *
+ * Resolves the product by `id` or `sku` (SKU takes precedence), and outputs a
+ * link to `?add-to-cart=<id>&quantity=<qty>` including the display price and an
+ * optional quantity. Returns an empty string in the admin, during AJAX, or when
+ * WooCommerce is unavailable.
+ *
+ * @param array|string $atts Shortcode attributes: `id` (int), `sku` (string),
+ *                           `qty` (int, default 1).
+ *
+ * @return string The button HTML, or an empty string.
+ */
 function do_shortcode_add_to_cart_btn($atts)
 {
     $html = '';

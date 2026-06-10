@@ -17,20 +17,47 @@ defined('WPINC') || die();
 
 class Component
 {
+    /**
+     * Plugin name/slug.
+     *
+     * @var string
+     */
     protected $name;
+
+    /**
+     * Plugin version.
+     *
+     * @var string
+     */
     protected $version;
 
+    /**
+     * Constructor.
+     *
+     * @param string $name    Plugin name/slug.
+     * @param string $version Plugin version.
+     */
     public function __construct(string $name, string $version)
     {
         $this->name = $name;
         $this->version = $version;
     }
 
+    /**
+     * Get the plugin name/slug.
+     *
+     * @return string
+     */
     public function get_name(): string
     {
         return $this->name;
     }
 
+    /**
+     * Get the plugin version.
+     *
+     * @return string
+     */
     public function get_version(): string
     {
         return $this->version;

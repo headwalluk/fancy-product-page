@@ -1,11 +1,26 @@
 <?php
 
+/**
+ * Product meta box for choosing a fancy product page.
+ *
+ * @package Fancy_Product_Page
+ */
+
 namespace Fancy_Product_Page;
 
 defined('WPINC') || die();
 
+/**
+ * "Fancy Product Page" meta box on the WooCommerce product editor.
+ *
+ * Lets the administrator select the Page/Post to use as a product's front-end,
+ * and persists the choice to the {@see META_FANCY_PRODUCT_PAGE_ID} post meta.
+ */
 class Product_Meta_Box extends Meta_Box
 {
+    /**
+     * Constructor. Registers the meta box and its save handler.
+     */
     public function __construct()
     {
         parent::__construct(POST_TYPE_PRODUCT);
@@ -14,6 +29,13 @@ class Product_Meta_Box extends Meta_Box
         add_action('save_post', [$this, 'save'], 10, 2);
     }
 
+    /**
+     * Register the meta box with WordPress.
+     *
+     * Callback for `add_meta_boxes`.
+     *
+     * @return void
+     */
     public function register_meta_box()
     {
         add_meta_box(
@@ -24,6 +46,13 @@ class Product_Meta_Box extends Meta_Box
         );
     }
 
+    /**
+     * Render the meta box contents.
+     *
+     * @param \WP_Post $post The product post being edited.
+     *
+     * @return void
+     */
     public function render($post)
     {
         echo '<div class="pp-wrap">';
@@ -41,6 +70,16 @@ class Product_Meta_Box extends Meta_Box
         echo '</div>';
     }
 
+    /**
+     * Persist the selected fancy page ID, or delete the meta when none is set.
+     *
+     * Callback for `save_post`; guarded by {@see Meta_Box::is_saving_meta_box()}.
+     *
+     * @param int      $post_id The product ID being saved.
+     * @param \WP_Post $post    The product post object.
+     *
+     * @return void
+     */
     public function save($post_id, $post)
     {
         if (!$this->is_saving_meta_box($post_id, $post)) {
