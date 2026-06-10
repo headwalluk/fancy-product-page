@@ -1,0 +1,73 @@
+name: Build Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          # Remove 'v' prefix from tag (v1.0.0 -> 1.0.0)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Plugin version: ${VERSION}"
+
+      - name: Prepare plugin directory
+        run: |
+          mkdir -p build
+          rsync -av --exclude-from=.distignore ./ build/fancy-product-page/
+
+      - name: Build release zips
+        # Build the versioned zip once, then copy it to the generic
+        # filename so both artifacts are guaranteed byte-identical
+        # (same SHA256, just different filenames).
+        run: |
+          cd build
+          zip -r fancy-product-page-${{ steps.get_version.outputs.version }}.zip fancy-product-page/
+          cp fancy-product-page-${{ steps.get_version.outputs.version }}.zip fancy-product-page.zip
+          cd ..
+
+      - name: Upload versioned zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fancy-product-page-${{ steps.get_version.outputs.version }}
+          path: build/fancy-product-page-${{ steps.get_version.outputs.version }}.zip
+
+      - name: Upload generic zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fancy-product-page
+          path: build/fancy-product-page.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/fancy-product-page-${{ steps.get_version.outputs.version }}.zip
+            build/fancy-product-page.zip
+          body: |
+            **Fancy Product Page v${{ steps.get_version.outputs.version }}**
+
+            Display a WooCommerce product using an ordinary WordPress Page or Post in place of the default single-product template.
+
+            Download `fancy-product-page.zip` and install via WordPress admin (Plugins → Add New → Upload Plugin), or upload to your `wp-content/plugins/` directory.
+
+            Sites running a previous version will receive this update automatically via the in-plugin GitHub updater.
+
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for full release notes.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

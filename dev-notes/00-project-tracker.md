@@ -1,7 +1,7 @@
 # Fancy Product Page - Project Tracker
 
-**Version:** 1.1.0
-**Last Updated:** 10 June 2026 (Milestones 1, 2 & 4 complete)
+**Version:** 1.2.0
+**Last Updated:** 10 June 2026 (Milestones 1, 2, 4 & 5 complete)
 
 ---
 
@@ -23,9 +23,10 @@ This tracker covers the June 2026 modernisation effort: removing the bundled Pow
 - [x] Remove dependency on `pp-core.php` and `pp-assets/` (Milestone 1). ✅
 - [x] Initialise git and publish to `git@github.com:headwalluk/fancy-product-page.git` (Milestone 2). ✅
 - [x] Add release documentation: README.md, readme.txt, CHANGELOG.md, LICENSE, phpcs.xml, docs/ (Milestone 4). ✅
-- [ ] Code cleanup: dead/disabled code and vestigial Settings (Milestone 3, pending decisions).
+- [x] Add GitHub auto-updates + release workflow (Milestone 5). ✅
+- [ ] Code cleanup: dead/disabled code and vestigial Settings (Milestone 3, pending decisions — **deferred until after 1.2.0 is tested & published**).
 - [ ] Run `phpcs` against the new `phpcs.xml` and address WPCS formatting (Milestone 4 follow-up).
-- [ ] Decide the fate of disabled code: `maybe_redirect_to_fancy_page()` (unhooked 301 redirect) and `output_structured_data()` (dead). Either wire up behind a setting or remove.
+- [ ] **Future maintenance:** remove `maybe_redirect_to_fancy_page()` properly. It predates the current approach — the product's real URL is now handled by the `post_type_link` filter (`override_product_permalink()`), so the unhooked `template_redirect` 301 method is redundant. Left in place for now; remove during the post-1.2.0 cleanup pass. (Also `output_structured_data()` is dead.)
 - [ ] `Settings` class is vestigial — no admin menu, no options defined. Either implement a real settings page or remove the scaffolding.
 - [x] Plugin header lists `Domain Path: /languages` — `languages/` now populated (`.pot` + 8 locales) and text domain loaded on `init`. ✅
 - [ ] Align code to WordPress Coding Standards (WPCS) — current code uses tight, non-WPCS formatting.
@@ -166,10 +167,47 @@ Functions:
 
 ---
 
+### Milestone 5: GitHub Auto-Updates & Release Workflow ✅
+
+**Status:** Complete
+**Priority:** Medium
+**Started:** 10 June 2026
+**Completed:** 10 June 2026
+**Version:** 1.2.0
+
+**Goal:** Let installed copies update themselves from GitHub releases, with an automated release-build pipeline — ported from the `quick-2fa` plugin.
+
+**Rationale:**
+- The plugin is distributed via GitHub, not WordPress.org, so it needs its own update channel.
+- `quick-2fa` already has a proven updater + release workflow; reuse it rather than reinvent.
+
+**Architectural Decisions:**
+1. `Github_Updater` (`includes/class-github-updater.php`) hooks `pre_set_site_transient_update_plugins`, `plugins_api`, and `upgrader_process_complete`.
+2. Instantiated in `Plugin::run()` (not `admin_init`) so it also runs under wp-cron auto-updates.
+3. Config via namespaced constants in `constants.php`: `UPDATER_GITHUB_REPO`, `UPDATER_CACHE_KEY`, `UPDATER_CACHE_TTL`.
+4. Plugin identity via global constants `\PP_FPP_BASENAME`, `\PP_FPP_FILE`, `\PP_FPP_VERSION`.
+5. Kept the imported file in its WPCS formatting (tabs, `array()`) rather than down-converting to the legacy 4-space style — it already matches the eventual WPCS target.
+6. `release.yml` builds `fancy-product-page.zip` (+ versioned copy) on `v*.*.*` tags; `.distignore` strips dev files from the zip.
+
+#### Implementation Checklist
+
+- [x] Refactor `includes/class-github-updater.php` (namespace, constants, guard, filter `fancy_product_page_updater_enabled`, log prefix, `@since 1.2.0`).
+- [x] Add `UPDATER_*` constants to `constants.php`.
+- [x] Add `PP_FPP_BASENAME` define; `require` the updater and `new Github_Updater()` in `Plugin::run()`.
+- [x] Refactor `.github/workflows/release.yml` (slug `fancy-product-page`, `main` branch, release body).
+- [x] Add `.distignore`.
+- [x] Bump version to 1.2.0; update CHANGELOG, readme.txt, README.
+
+**Testing:** `php -l` clean; load-harness confirms the updater instantiates and registers its three hooks within `Plugin::run()` without error. Live update flow to be verified after the first `v1.2.0` GitHub release is tagged.
+
+**Release step (manual, when ready):** commit, then `git tag v1.2.0 && git push origin v1.2.0` to trigger the workflow and publish the first release.
+
+---
+
 ## Current Architecture Notes
 
 - **Bootstrap:** `fancy-product-page.php` → manual `require_once` chain → `new Plugin()->run()`.
-- **Hook surface:** all in `Plugin::run()` — `post_type_link`, `wp`, `wp_loaded`, `admin_init`, `woocommerce_structured_data_type_for_page`.
+- **Hook surface:** registered in `Plugin::run()` — `post_type_link`, `wp`, `wp_loaded`, `admin_init`, `init` (textdomain), `woocommerce_structured_data_type_for_page`. The updater registers its own (`pre_set_site_transient_update_plugins`, `plugins_api`, `upgrader_process_complete`) in `Github_Updater::__construct()`.
 - **Data model:** single post-meta key `_fancy_product_page` on `product` posts, pointing at a page/post ID.
 - **Front-end:** the fancy page IS a normal page; the plugin only injects product structured data and rewrites product links to it.
 

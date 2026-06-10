@@ -11,7 +11,7 @@ The typical use case: build a rich, bespoke landing page for a product in the pa
 - **Namespace:** `Fancy_Product_Page`
 - **Text Domain:** `fancy-product-page`
 - **Constant/define prefix:** `PP_FPP_` (e.g. `PP_FPP_DIR`); function prefix `pp_fpp_`; global instance `$pp_fpp_plugin`
-- **PHP:** 7.4+ (do NOT use `declare(strict_types=1)` — breaks WordPress/WooCommerce interop)
+- **PHP:** 8.0+ (do NOT use `declare(strict_types=1)` — breaks WordPress/WooCommerce interop)
 - **WordPress:** 6.0+, WooCommerce active (the plugin degrades gracefully when `WC()` is absent)
 - **No build system** — no npm, no Composer, no bundler. Assets are plain CSS.
 - **Self-contained** — as of v1.1.0 the plugin has no external library dependency. It previously bundled the Power Plugins library (`pp-core.php` + `pp-assets/`); the slice it used was reimplemented locally and the library deleted (see `dev-notes/00-project-tracker.md`, Milestone 1).
@@ -45,6 +45,7 @@ There is **no Composer autoloader** — classes are manually `require_once`d, de
 - **`Settings`** (`class-settings.php`) — Extends `Settings_Core`. Currently a thin/vestigial shell: it can render and save a settings page but **no admin menu registers it and no options are defined yet**. `save_settings()` and `get_default_value()` are empty placeholders.
 - **`Admin_Hooks`** (`class-admin-hooks.php`) — Extends `Component`. Enqueues admin assets on the product edit/list screens.
 - **`Product_Meta_Box`** (`class-product-meta-box.php`) — Extends `Meta_Box`. Registers the "Fancy Product Page" meta box on the `product` post type and saves the selected page ID to post meta.
+- **`Github_Updater`** (`class-github-updater.php`) — Standalone (no base class). Checks the GitHub repo (`UPDATER_GITHUB_REPO`) for the latest release and serves it through the WP plugin-update system. Instantiated in `Plugin::run()` so it works under wp-cron auto-updates, not just admin. Gated by the `fancy_product_page_updater_enabled` filter; release data cached in the `UPDATER_CACHE_KEY` transient. Ships in WPCS formatting (tabs, `array()`), unlike the older 4-space files. Releases are built by `.github/workflows/release.yml` on `v*.*.*` tags; `.distignore` controls the zip contents.
 
 - **`Component`** (`class-component.php`) — minimal base storing name/version.
 - **`Settings_Core`** (`class-settings-core.php`) — base settings controller: type-safe option get/set and render helpers.

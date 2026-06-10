@@ -41,3 +41,24 @@ const CONVERT_ADD_TO_CART_SKU_TO_ID = true;
  * @var int
  */
 const REDIRECT_HTTP_CODE = 301;
+
+/**
+ * GitHub repository (owner/name) checked for plugin updates.
+ *
+ * @var string
+ */
+const UPDATER_GITHUB_REPO = 'headwalluk/fancy-product-page';
+
+/**
+ * Lifetime of the cached GitHub release lookup, in seconds.
+ *
+ * @var int
+ */
+const UPDATER_CACHE_TTL = 12 * HOUR_IN_SECONDS;
+
+/**
+ * Transient key for the cached GitHub release data.
+ *
+ * @var string
+ */
+const UPDATER_CACHE_KEY = 'pp_fpp_github_release';

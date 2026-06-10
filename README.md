@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-21759B?logo=wordpress&logoColor=white)
 ![WooCommerce](https://img.shields.io/badge/WooCommerce-required-7F54B3?logo=woocommerce&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.0%2B-777BB4?logo=php&logoColor=white)
 ![License](https://img.shields.io/badge/license-GPLv2%20or%20later-blue)
 
 A WordPress / WooCommerce plugin that lets you display a WooCommerce **product** using an ordinary WordPress **Page** (or Post) in place of the default single-product template.
@@ -21,13 +21,17 @@ Build a rich, bespoke landing page for a product in the page editor (or a page b
 
 - WordPress 6.0+
 - WooCommerce (active)
-- PHP 7.4+
+- PHP 8.0+
 
 ## Installation
 
 1. Copy the `fancy-product-page` directory into `wp-content/plugins/`.
 2. Activate **Fancy Product Page** in **Plugins**.
 3. Edit a WooCommerce product, find the **Fancy Product Page** meta box, and choose the Page/Post to use as its front-end.
+
+## Updates
+
+The plugin self-updates from its GitHub releases. Once installed, new tagged releases appear in **Dashboard → Updates** like any other plugin update. Releases are built automatically by `.github/workflows/release.yml` when a `v*.*.*` tag is pushed. Update checks can be disabled with the `fancy_product_page_updater_enabled` filter.
 
 ## Usage
 

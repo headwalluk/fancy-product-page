@@ -62,6 +62,8 @@ class Plugin extends Component
     {
         $this->settings = new Settings($this->name, $this->version);
 
+        new Github_Updater();
+
         add_action('init', [$this, 'load_textdomain']);
 
         add_filter('post_type_link', [$this, 'override_product_permalink'], 10, 4);

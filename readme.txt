@@ -3,8 +3,8 @@ Contributors: Headwall
 Tags: woocommerce, product page, landing page, seo, page builder
 Requires at least: 6.0
 Tested up to: 6.9
-Requires PHP: 7.4
-Stable tag: 1.1.0
+Requires PHP: 8.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,12 @@ Yes. The "fancy page" is just a normal WordPress Page or Post, so any block edit
 The plugin checks for WooCommerce before doing any product work and degrades gracefully, so it will not fatal-error.
 
 == Changelog ==
+
+= 1.2.0 =
+* Added GitHub-based automatic updates: new tagged releases are offered through the standard WordPress plugin-update flow. Toggle with the `fancy_product_page_updater_enabled` filter.
+* Added a GitHub Actions release workflow that builds and publishes the release zips on `v*.*.*` tags.
+* Added internationalisation: the `fancy-product-page` text domain is loaded from the bundled `languages/` directory (.pot + 8 locales).
+* Raised the minimum PHP requirement to 8.0.
 
 = 1.1.0 =
 * Removed the bundled Power Plugins library (`pp-core.php` / `pp-assets/`); the plugin is now fully self-contained.

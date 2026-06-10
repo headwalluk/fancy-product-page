@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2026-06-10
+
+### Added
+- **GitHub-based automatic updates** — `Github_Updater` (`includes/class-github-updater.php`) checks the plugin's GitHub repository for new releases and serves them through the standard WordPress plugin-update system (update notice in **Dashboard → Updates** and the "View details" modal). Results are cached in a transient. Update checks can be disabled with the `fancy_product_page_updater_enabled` filter.
+- **Release workflow** — `.github/workflows/release.yml` builds and publishes the release zips (`fancy-product-page.zip` + a versioned copy) when a `v*.*.*` tag is pushed, and `.distignore` controls which files are stripped from the distributed zip.
+- **Internationalisation** — `Plugin::load_textdomain()` loads the `fancy-product-page` text domain on `init` from the bundled `languages/` directory (`.pot` + `.po`/`.mo` for 8 locales).
+
+### Changed
+- **Minimum PHP raised to 8.0** (the updater uses `str_starts_with()` / `str_ends_with()`).
+- Author updated to Paul Faulkner.
+
+---
+
 ## [1.1.0] - 2026-06-10
 
 ### Removed
