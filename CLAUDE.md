@@ -13,9 +13,8 @@ The typical use case: build a rich, bespoke landing page for a product in the pa
 - **Constant/define prefix:** `PP_FPP_` (e.g. `PP_FPP_DIR`); function prefix `pp_fpp_`; global instance `$pp_fpp_plugin`
 - **PHP:** 7.4+ (do NOT use `declare(strict_types=1)` — breaks WordPress/WooCommerce interop)
 - **WordPress:** 6.0+, WooCommerce active (the plugin degrades gracefully when `WC()` is absent)
-- **No build system** — no npm, no Composer, no bundler. Assets are plain CSS/JS.
-
-> **In-progress refactor:** the plugin historically depended on the bundled Power Plugins library (`pp-core.php` + `pp-assets/`). That dependency is being removed — see `dev-notes/00-project-tracker.md`. New code must not introduce new calls into `pp-core.php`.
+- **No build system** — no npm, no Composer, no bundler. Assets are plain CSS.
+- **Self-contained** — as of v1.1.0 the plugin has no external library dependency. It previously bundled the Power Plugins library (`pp-core.php` + `pp-assets/`); the slice it used was reimplemented locally and the library deleted (see `dev-notes/00-project-tracker.md`, Milestone 1).
 
 ## Commands
 
@@ -25,7 +24,7 @@ phpcbf                 # Auto-fix coding standards violations
 phpcs includes/        # Check a specific directory
 ```
 
-This plugin does not yet ship a `phpcs.xml`; adding one (with prefixes `fancy-product-page`, `pp_fpp`, `Fancy_Product_Page`) is a tracked milestone. There is no test suite — verification is manual against a live WooCommerce install.
+The config is in `phpcs.xml` — WordPress standards with prefixes `fancy_product_page`, `pp_fpp`, `Fancy_Product_Page`. The existing code is not yet WPCS-clean (formatting alignment is a tracked milestone). There is no test suite — verification is manual against a live WooCommerce install, or via a PHP load-harness that stubs WordPress functions.
 
 ## Architecture
 
@@ -35,7 +34,7 @@ This plugin does not yet ship a `phpcs.xml`; adding one (with prefixes `fancy-pr
 
 1. Guards with `defined( 'WPINC' ) || die();`
 2. Defines `PP_FPP_NAME`, `PP_FPP_VERSION` (const) and path/URL defines (`PP_FPP_DIR`, `PP_FPP_URL`, `PP_FPP_ADMIN_TEMPLATES_DIR`, `PP_FPP_ASSETS_DIR`, `PP_FPP_ASSETS_URL`, …).
-3. `require_once`s files in dependency order: the (legacy) `pp-core.php`, then `constants.php`, `functions-private.php`, `functions.php`, the `includes/` classes, then the shortcode file.
+3. `require_once`s files in dependency order: `constants.php`, `functions-private.php`, `functions.php`, `includes/form-helpers.php`, the base classes (`class-component.php`, `class-meta-box.php`, `class-settings-core.php`), the concrete classes, then the shortcode file.
 4. Instantiates the global `$pp_fpp_plugin = new Fancy_Product_Page\Plugin( PP_FPP_NAME, PP_FPP_VERSION )` and calls `->run()`.
 
 There is **no Composer autoloader** — classes are manually `require_once`d, dependencies first.
@@ -47,7 +46,11 @@ There is **no Composer autoloader** — classes are manually `require_once`d, de
 - **`Admin_Hooks`** (`class-admin-hooks.php`) — Extends `Component`. Enqueues admin assets on the product edit/list screens.
 - **`Product_Meta_Box`** (`class-product-meta-box.php`) — Extends `Meta_Box`. Registers the "Fancy Product Page" meta box on the `product` post type and saves the selected page ID to post meta.
 
-`Component`, `Settings_Core`, and `Meta_Box` are base classes currently provided by `pp-core.php` (being replaced — see tracker).
+- **`Component`** (`class-component.php`) — minimal base storing name/version.
+- **`Settings_Core`** (`class-settings-core.php`) — base settings controller: type-safe option get/set and render helpers.
+- **`Meta_Box`** (`class-meta-box.php`) — base meta-box class: nonce rendering and save-time verification.
+
+(`Component`, `Settings_Core`, `Meta_Box`, and the helpers in `form-helpers.php` were previously provided by `pp-core.php`; they are now local — see Milestone 1 in the tracker.)
 
 ### What the plugin actually does (functional map)
 
@@ -110,4 +113,6 @@ Types: `feat:` `fix:` `refactor:` `chore:` `docs:` `style:` `test:`
 ## Reference Files
 
 - `dev-notes/00-project-tracker.md` — Current milestones, roadmap, and refactor plan.
+- `docs/` — Developer docs: `architecture.md`, `hooks.md`, `shortcode.md`, `usage.md`.
+- `README.md` / `readme.txt` / `CHANGELOG.md` — Release documentation.
 - `constants.php` — Single source of truth for meta keys and configuration constants.

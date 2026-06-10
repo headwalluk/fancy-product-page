@@ -2,21 +2,25 @@
 
 /**
  * Plugin Name:       Fancy Product Page
- * Plugin URI:        Cart to Quote
- * Description:       Create ad-hoc bespoke product pages
- * Version:           1.0.2
+ * Plugin URI:        https://github.com/headwalluk/fancy-product-page
+ * Description:       Display a WooCommerce product using an ordinary WordPress Page or Post in place of the default single-product template.
+ * Version:           1.1.0
+ * Requires at least: 6.0
+ * Requires PHP:      7.4
+ * Requires Plugins:  woocommerce
  * Author:            Headwall WP Tutorials
  * Author URI:        https://wp-tutorials.tech/
- * License:           GPLv3 or later
- * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
+ * License:           GPLv2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       fancy-product-page
  * Domain Path:       /languages
+ * WC requires at least: 6.0
  */
 
 defined( 'WPINC' ) || die();
 
 const PP_FPP_NAME    = 'fancy-product-page';
-const PP_FPP_VERSION = '1.0.2';
+const PP_FPP_VERSION = '1.1.0';
 
 define( 'PP_FPP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PP_FPP_URL', plugin_dir_url( __FILE__ ) );

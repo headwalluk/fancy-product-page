@@ -1,7 +1,7 @@
 # Fancy Product Page - Project Tracker
 
-**Version:** 1.0.2
-**Last Updated:** 10 June 2026 (Milestone 1 complete)
+**Version:** 1.1.0
+**Last Updated:** 10 June 2026 (Milestones 1, 2 & 4 complete)
 
 ---
 
@@ -21,8 +21,10 @@ This tracker covers the June 2026 modernisation effort: removing the bundled Pow
 ## Active TODO Items
 
 - [x] Remove dependency on `pp-core.php` and `pp-assets/` (Milestone 1). ✅
-- [ ] Initialise git and publish to `git@github.com:headwalluk/fancy-product-page.git` (Milestone 2).
-- [ ] Add release documentation: README.md, readme.txt, CHANGELOG.md, LICENSE, phpcs.xml, docs/ (Milestone 4).
+- [x] Initialise git and publish to `git@github.com:headwalluk/fancy-product-page.git` (Milestone 2). ✅
+- [x] Add release documentation: README.md, readme.txt, CHANGELOG.md, LICENSE, phpcs.xml, docs/ (Milestone 4). ✅
+- [ ] Code cleanup: dead/disabled code and vestigial Settings (Milestone 3, pending decisions).
+- [ ] Run `phpcs` against the new `phpcs.xml` and address WPCS formatting (Milestone 4 follow-up).
 - [ ] Decide the fate of disabled code: `maybe_redirect_to_fancy_page()` (unhooked 301 redirect) and `output_structured_data()` (dead). Either wire up behind a setting or remove.
 - [ ] `Settings` class is vestigial — no admin menu, no options defined. Either implement a real settings page or remove the scaffolding.
 - [ ] Plugin header lists `Domain Path: /languages` but there is no `languages/` directory and no `.pot` file.
@@ -104,20 +106,22 @@ Functions:
 
 ---
 
-### Milestone 2: Version Control & GitHub 📋
+### Milestone 2: Version Control & GitHub ✅
 
-**Status:** Not Started
+**Status:** Complete
 **Priority:** High
-**Version:** —
+**Started:** 10 June 2026
+**Completed:** 10 June 2026
 
 **Goal:** Put the plugin under git and publish to `git@github.com:headwalluk/fancy-product-page.git`.
 
 #### Implementation Checklist
 
-- [ ] Add `.gitignore` (mirror bullfix-erp: vendor, node_modules, IDE files, OS files, archives, sample-data).
-- [ ] `git init`, set default branch.
-- [ ] Initial commit of the cleaned-up tree.
-- [ ] Add remote `git@github.com:headwalluk/fancy-product-page.git` and push.
+- [x] Add `.gitignore` (mirror bullfix-erp: vendor, node_modules, IDE files, OS files, archives).
+- [x] `git init` on branch `main`.
+- [x] Initial commit of the working baseline (incl. pp-core) so the refactor shows as a clean diff.
+- [x] Add remote `git@github.com:headwalluk/fancy-product-page.git` and push `main`.
+- [x] Milestone 1 done on branch `refactor/remove-pp-core` (pushed); merge to `main` pending review.
 
 ---
 
@@ -139,24 +143,26 @@ Functions:
 
 ---
 
-### Milestone 4: Release Documentation & Standards 📋
+### Milestone 4: Release Documentation & Standards ✅ (docs) / 📋 (phpcs + i18n)
 
-**Status:** Not Started
+**Status:** Documentation complete; phpcs run and i18n catalogue pending
 **Priority:** Medium
-**Version:** —
+**Started:** 10 June 2026
+**Completed (docs):** 10 June 2026
 
 **Goal:** Bring the plugin to professional release standard, matching bullfix-erp's documentation set.
 
 #### Implementation Checklist
 
-- [ ] `README.md` — developer-facing overview, badges, links to docs.
-- [ ] `readme.txt` — WordPress.org plugin header format (Description, Features, Installation, FAQ, Changelog).
-- [ ] `CHANGELOG.md` — Keep a Changelog + SemVer.
-- [ ] `LICENSE` — GPLv3 (matches the plugin header).
-- [ ] `phpcs.xml` — WordPress standards with prefixes `fancy-product-page`, `pp_fpp`, `Fancy_Product_Page`.
-- [ ] `docs/` — architecture, hooks/filters, shortcode usage.
-- [ ] `languages/` — generate a `.pot` (header already declares `Domain Path: /languages`).
-- [ ] Run `phpcs` and resolve findings.
+- [x] `README.md` — developer-facing overview, badges, links to docs.
+- [x] `readme.txt` — WordPress.org plugin header format (Description, Features, Installation, FAQ, Changelog).
+- [x] `CHANGELOG.md` — Keep a Changelog + SemVer; 1.0.2 baseline + 1.1.0 refactor.
+- [x] `LICENSE` — **GPLv2** (corrected from GPLv3 to match WordPress core; header updated to match).
+- [x] `phpcs.xml` — WordPress standards with prefixes `fancy_product_page`, `pp_fpp`, `Fancy_Product_Page`.
+- [x] `docs/` — `architecture.md`, `hooks.md`, `shortcode.md`, `usage.md`.
+- [x] Completed plugin header (`Requires at least` / `Requires PHP` / `Requires Plugins` / `WC requires at least`) and bumped version to 1.1.0.
+- [ ] `languages/` — generate a `.pot` (header declares `Domain Path: /languages`).
+- [ ] Run `phpcs` and resolve findings. **Baseline (10 Jun 2026):** 1527 errors / 72 warnings, of which **phpcbf can auto-fix 1398** (mostly WPCS whitespace + Yoda conditions). Recommend a dedicated `style:` commit running `phpcbf` then hand-fixing the ~129 remainder — kept separate from functional changes for reviewability.
 
 ---
 
