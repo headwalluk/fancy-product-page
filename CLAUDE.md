@@ -58,13 +58,13 @@ There is **no Composer autoloader** — classes are manually `require_once`d, de
 The behaviour is driven by hooks registered in `Plugin::run()`:
 
 1. **Permalink override** — `post_type_link` filter → `override_product_permalink()`. If a product has an associated fancy page, every link WordPress/WooCommerce generates for that product resolves to the fancy page's permalink instead of `/product/...`.
-2. **Structured data injection** — `wp` action → `late_init()`. On a singular page that *is* a fancy product page, it finds the product whose `META_FANCY_PRODUCT_PAGE_ID` meta equals the current page ID and calls `WC()->structured_data->generate_product_data( $product )` so the page emits product schema.org JSON-LD.
+2. **Structured data injection** — `wp` action → `late_init()`. On a singular page that *is* a fancy product page, it finds the product whose `META_FANCY_PRODUCT_PAGE_ID` meta equals the current page ID and calls `WC()->structured_data->generate_product_data( $product )` so the page emits product schema.org JSON-LD. Skipped when the product has `META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA` set (see `is_fancy_page_product_schema_suppressed()`).
 3. **Structured-data type** — `woocommerce_structured_data_type_for_page` filter → `structured_data_types_for_page()`. Adds `product` to the page's structured-data types so WooCommerce outputs the data generated in step 2.
 4. **SKU → ID add-to-cart** — `wp_loaded` (priority 19) → `add_to_cart_action()`, gated by the `CONVERT_ADD_TO_CART_SKU_TO_ID` constant. Lets `?add-to-cart=<SKU>` work by converting a non-numeric `add-to-cart` value to a product ID before WooCommerce processes it.
 5. **Add-to-cart shortcode** — `[add_to_cart_btn id="" sku="" qty=""]` (`includes/shortcode-add-to-cart-button.php`). Renders a themed add-to-cart button (resolves product by id or SKU, shows price and quantity) for embedding inside the fancy page.
 6. **Admin meta box** — `Product_Meta_Box` adds a "Fancy Product Page" selector to the product editor. The dropdown lists eligible pages/posts; saving writes the chosen ID to `META_FANCY_PRODUCT_PAGE_ID`, or deletes the meta when "Standard WooCommerce product page" (0) is chosen.
 
-> **Disabled code:** `maybe_redirect_to_fancy_page()` (a `template_redirect` 301 from the canonical product URL to the fancy page) exists but is **not** hooked. `output_structured_data()` is dead code. Both are candidates for cleanup during the refactor.
+> **Disabled code:** `maybe_redirect_to_fancy_page()` (a `template_redirect` 301 from the canonical product URL to the fancy page) exists but is **not** hooked. `output_structured_data()` is dead code, now marked `@deprecated` and calling `_deprecated_function()`. Both are candidates for cleanup during the refactor.
 
 ### Constants (`constants.php`)
 
@@ -74,6 +74,8 @@ All magic strings live in `constants.php` under the `Fancy_Product_Page` namespa
 | --- | --- | --- |
 | `POST_TYPE_PRODUCT` | `product` | WooCommerce product post type |
 | `META_FANCY_PRODUCT_PAGE_ID` | `_fancy_product_page` | Post-meta key storing the chosen page ID on a product |
+| `META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA` | `_suppress_fancy_page_product_schema` | Post-meta key set only when an admin opts *out* of writing product schema to the fancy page (reverse logic — absent means "write it") |
+| `FIELD_WRITE_FANCY_PAGE_PRODUCT_SCHEMA` | `pp_fpp_write_product_schema` | Name of the positively-worded meta-box checkbox backing the above |
 | `CONVERT_ADD_TO_CART_SKU_TO_ID` | `true` | Enable `?add-to-cart=<SKU>` support |
 | `REDIRECT_HTTP_CODE` | `301` | Status used by the (currently disabled) redirect |
 
@@ -114,6 +116,93 @@ Types: `feat:` `fix:` `refactor:` `chore:` `docs:` `style:` `test:`
 ## Reference Files
 
 - `dev-notes/00-project-tracker.md` — Current milestones, roadmap, and refactor plan.
+- `dev-notes/01-snag-list.md` — Known papercuts and small deferred defects.
 - `docs/` — Developer docs: `architecture.md`, `hooks.md`, `shortcode.md`, `usage.md`.
 - `README.md` / `readme.txt` / `CHANGELOG.md` — Release documentation.
 - `constants.php` — Single source of truth for meta keys and configuration constants.
+
+<!-- wp-translate:begin v=1.1.0 hash=8a6ed6f189791e1c757e5c663e05c0322433fa66000aecb9ce6790ed8334c565 -->
+## Translating this plugin (wp-translate conventions)
+
+This plugin's `.po`/`.mo` files are generated from source by
+[wp-translate](https://github.com/headwalluk/wp-translate-tool), which
+machine-translates strings with DeepL. Machine translation is only as good as
+the strings you give it — follow these conventions when adding or editing
+user-facing text.
+
+### 1. Disambiguate short or ambiguous strings with `_x()`
+
+DeepL handles full sentences well but guesses badly on short, context-free
+labels. Give it context with `_x()` (or `esc_html_x()`, `_ex()`):
+
+```php
+// Ambiguous out of context — DeepL may read "Sent" as "late", "Folder" as "leaflet"
+__( 'Sent', 'fancy-product-page' );
+
+// Disambiguated — the context is passed to the translator and to DeepL
+_x( 'Sent', 'email delivery status', 'fancy-product-page' );
+_x( 'Folder', 'IMAP mailbox', 'fancy-product-page' );
+_x( 'Open', 'verb; button label', 'fancy-product-page' );
+```
+
+The context (2nd argument) is never shown to users. Use it whenever a string is a
+single word, a short label, or has more than one plausible meaning.
+
+### 2. Use placeholders, never concatenation
+
+Build dynamic text with `printf`/`sprintf` so the whole sentence translates as a
+unit, and add a `translators:` comment to explain each placeholder:
+
+```php
+/* translators: %s is the user's display name */
+printf( esc_html__( 'Welcome back, %s', 'fancy-product-page' ), $name );
+```
+
+Never split a sentence across multiple translation calls — word order differs
+between languages.
+
+### 3. Acronyms and technical tokens
+
+wp-translate keeps common acronyms (`TLS`, `API`, `SMTP`, `URL`, `ID`, `UTC`, …)
+verbatim automatically. If you introduce an unusual acronym or product name that
+must not be translated, keep it as its own standalone string so it is recognised,
+or ask the maintainer to add it to the tool's acronym list.
+
+### 4. Don't translate dates — let WordPress localise them
+
+Never add month or day-of-week names (full or abbreviated) as translatable
+strings. DeepL frequently mistranslates short forms like `Mon`, `Tue`, `Jan`,
+`Feb` even with context hints. WordPress already ships locale-aware names — use
+`$wp_locale`:
+
+```php
+global $wp_locale;
+$wp_locale->get_month( $month_number );        // "January" (1-based)
+$wp_locale->get_month_abbrev( $month_name );   // "Jan"
+$wp_locale->get_weekday( $weekday_number );     // "Monday" (0 = Sunday)
+$wp_locale->get_weekday_abbrev( $weekday_name ); // "Mon"
+```
+
+For formatted dates, prefer `wp_date()` / `date_i18n()`, which localise month and
+day names automatically.
+
+### 5. English source dialect
+
+Write source strings in standard English. wp-translate handles English targets
+locally (no DeepL): `en`/`en_US` use the source as-is, and `en_GB`/`en_AU`/… get
+American spellings converted to British automatically (`color` → `colour`).
+
+### Running wp-translate
+
+After changing strings, regenerate translations:
+
+```bash
+wp-translate /path/to/this-plugin              # auto-detect locales from languages/
+wp-translate /path/to/this-plugin en_GB,fr_FR  # explicit locales
+wp-translate /path/to/this-plugin --dry-run    # preview; no API calls, no writes
+```
+
+Requires WP-CLI (`wp`) and a DeepL API key at `~/.config/deepl.env`. The tool
+regenerates the `.pot` from source, translates new/changed strings for each
+locale, and compiles the `.mo` files.
+<!-- wp-translate:end -->

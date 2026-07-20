@@ -1,7 +1,7 @@
 # Fancy Product Page - Project Tracker
 
-**Version:** 1.2.0
-**Last Updated:** 10 June 2026 (Milestones 1, 2, 4 & 5 complete)
+**Version:** 1.3.0
+**Last Updated:** 20 July 2026 (1.3.0: structured-data opt-out, post-type fix, i18n review)
 
 ---
 
@@ -26,7 +26,7 @@ This tracker covers the June 2026 modernisation effort: removing the bundled Pow
 - [x] Add GitHub auto-updates + release workflow (Milestone 5). ✅
 - [ ] Code cleanup: dead/disabled code and vestigial Settings (Milestone 3, pending decisions — **deferred until after 1.2.0 is tested & published**).
 - [ ] Run `phpcs` against the new `phpcs.xml` and address WPCS formatting (Milestone 4 follow-up).
-- [ ] **Future maintenance:** remove `maybe_redirect_to_fancy_page()` properly. It predates the current approach — the product's real URL is now handled by the `post_type_link` filter (`override_product_permalink()`), so the unhooked `template_redirect` 301 method is redundant. Left in place for now; remove during the post-1.2.0 cleanup pass. (Also `output_structured_data()` is dead.)
+- [ ] **Future maintenance:** remove `maybe_redirect_to_fancy_page()` properly. It predates the current approach — the product's real URL is now handled by the `post_type_link` filter (`override_product_permalink()`), so the unhooked `template_redirect` 301 method is redundant. Left in place for now; remove during the post-1.2.0 cleanup pass. (`output_structured_data()` is dead too — marked `@deprecated` in 1.3.0, still to be deleted.)
 - [ ] `Settings` class is vestigial — no admin menu, no options defined. Either implement a real settings page or remove the scaffolding.
 - [x] Plugin header lists `Domain Path: /languages` — `languages/` now populated (`.pot` + 8 locales) and text domain loaded on `init`. ✅
 - [ ] Align code to WordPress Coding Standards (WPCS) — current code uses tight, non-WPCS formatting.

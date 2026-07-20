@@ -15,6 +15,14 @@
   font-weight: 600;
 }
 
+.pp-wrap .pp-form-row label.pp-checkbox-label {
+  font-weight: 400;
+}
+
+.pp-wrap .pp-form-row label.pp-checkbox-label input[type='checkbox'] {
+  margin: 0 0.4em 0 0;
+}
+
 .pp-wrap .pp-help {
   display: block;
   margin-bottom: 0.4em;

@@ -1,8 +1,5 @@
-# Copyright (C) 2026 Headwall WP Tutorials
-# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Language: es_ES\n"
 "Project-Id-Version: Fancy Product Page 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/fancy-product-page\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
@@ -12,12 +9,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2026-06-10T10:30:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language: es_ES\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: fancy-product-page\n"
 
 #. Plugin Name of the plugin
 #: fancy-product-page.php
-#: includes/class-product-meta-box.php:43
 msgid "Fancy Product Page"
 msgstr "Página de productos de lujo"
 
@@ -31,44 +28,58 @@ msgstr "https://github.com/headwalluk/fancy-product-page"
 msgid "Display a WooCommerce product using an ordinary WordPress Page or Post in place of the default single-product template."
 msgstr "Mostrar un producto de WooCommerce utilizando una página o una entrada normal de WordPress en lugar de la plantilla predeterminada para un solo producto."
 
-#. Author of the plugin
-#: fancy-product-page.php
-msgid "Headwall WP Tutorials"
-msgstr "Tutoriales de Headwall WP"
-
-#. Author URI of the plugin
-#: fancy-product-page.php
-msgid "https://wp-tutorials.tech/"
-msgstr "https://wp-tutorials.tech/"
-
-#: admin-templates/product-meta-box.php:20
-msgid "Standard WooCommerce product page"
-msgstr "Página de producto estándar de WooCommerce"
-
-#: admin-templates/product-meta-box.php:35
-msgid "No title"
-msgstr "Sin título"
-
-#: admin-templates/product-meta-box.php:48
-msgid "Fancy product page"
-msgstr "Página de producto elegante"
-
-#: admin-templates/product-meta-box.php:51
-msgid "Choose a page (not a post) to use for this product in the frontend."
-msgstr "Elige una página (no una entrada) para mostrar este producto en la página web."
-
-#: includes/class-settings.php:41
-msgid "Not authorized"
-msgstr "No autorizado"
-
-#: includes/class-settings.php:63
-msgid "Save Changes"
-msgstr "Guardar cambios"
-
 #: includes/shortcode-add-to-cart-button.php:75
 msgid "Failed to determine the product"
 msgstr "No se ha podido identificar el producto"
 
+#. Author of the plugin
+#: fancy-product-page.php
+msgid "Paul Faulkner"
+msgstr "Paul Faulkner"
+
+#. Author URI of the plugin
+#: fancy-product-page.php
+msgid "https://headwall-hosting.com"
+msgstr "https://headwall-hosting.com"
+
+#: admin-templates/product-meta-box.php:21
+msgctxt "dropdown option; use no fancy page"
+msgid "Standard WooCommerce product page"
+msgstr "Página de producto estándar de WooCommerce"
+
+#: admin-templates/product-meta-box.php:36
+msgctxt "placeholder for a page/post with an empty title"
+msgid "No title"
+msgstr "Sin título"
+
+#: admin-templates/product-meta-box.php:49
+msgctxt "meta box field label; the page that replaces this product page"
+msgid "Fancy product page"
+msgstr "Página de producto personalizada"
+
+#: admin-templates/product-meta-box.php:52
+msgid "Choose the page or post to use for this product in the frontend."
+msgstr "Elige la página o la entrada que se mostrará para este producto en la interfaz de usuario."
+
+#: admin-templates/product-meta-box.php:67
+msgid "Write the structured data to the fancy product page?"
+msgstr "¿Se deben incluir los datos estructurados en la página de producto avanzada?"
+
+#: admin-templates/product-meta-box.php:69
+msgid "Leave this checked unless something else on the page (an SEO plugin, or hand-written markup) already outputs product schema.org data."
+msgstr "Deja esta casilla marcada, a menos que algún otro elemento de la página (un plugin de SEO o código escrito manualmente) ya genere datos de schema.org para el producto."
+
+#: includes/class-settings.php:41
+msgctxt "permission error shown in place of the settings page"
+msgid "Not authorized"
+msgstr "No autorizado"
+
+#: includes/class-settings.php:63
+msgctxt "verb; form submit button label"
+msgid "Save Changes"
+msgstr "Guardar cambios"
+
 #: includes/shortcode-add-to-cart-button.php:81
+msgctxt "verb; button label on a shop button"
 msgid "Add to cart"
 msgstr "Añadir al carrito"

@@ -4,7 +4,7 @@ Tags: woocommerce, product page, landing page, seo, page builder
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,13 @@ Yes. The "fancy page" is just a normal WordPress Page or Post, so any block edit
 The plugin checks for WooCommerce before doing any product work and degrades gracefully, so it will not fatal-error.
 
 == Changelog ==
+
+= 1.3.0 =
+* Added a "Write the structured data to the fancy product page?" checkbox to the product meta box, so schema.org output can be turned off per product when an SEO plugin already provides it. Ticked by default; existing products are unaffected.
+* Fixed: structured data was only generated when the fancy page was a Page. Products mapped to a Post (or a post type added via the `fancy_product_page_post_types` filter) now emit product schema correctly.
+* Fixed: the meta box help text wrongly said a post could not be used.
+* Improved translations: short, ambiguous labels now carry translator context, and all 8 locales have been regenerated.
+* Deprecated the unused `Plugin::output_structured_data()` method.
 
 = 1.2.0 =
 * Added GitHub-based automatic updates: new tagged releases are offered through the standard WordPress plugin-update flow. Toggle with the `fancy_product_page_updater_enabled` filter.

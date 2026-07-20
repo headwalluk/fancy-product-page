@@ -60,6 +60,26 @@ function get_fancy_product_page_id(int $product_id = 0): int
 }
 
 /**
+ * Should product structured data be kept off this product's fancy page?
+ *
+ * Reverse logic by design: the {@see META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA}
+ * meta only exists when an administrator has opted out, so products saved
+ * before this option existed continue to emit their schema.
+ *
+ * @param int $product_id WooCommerce product ID.
+ *
+ * @return bool True when the schema should be suppressed.
+ */
+function is_fancy_page_product_schema_suppressed(int $product_id): bool
+{
+    if ($product_id <= 0) {
+        return false;
+    }
+
+    return !empty(get_post_meta($product_id, META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA, true));
+}
+
+/**
  * Get the post types eligible to act as a fancy product page.
  *
  * Defaults to `page` and `post`, and is filterable via the

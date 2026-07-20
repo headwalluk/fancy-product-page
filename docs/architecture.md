@@ -40,7 +40,11 @@ Helpers:
 
 ## Data model
 
-A single post-meta key, `META_FANCY_PRODUCT_PAGE_ID` (`_fancy_product_page`), is stored on a `product` post. Its value is the ID of the Page/Post to use as that product's front-end. Resolve it only through `get_fancy_product_page_id()` — do not read the meta key directly.
+Two post-meta keys are stored on a `product` post.
+
+`META_FANCY_PRODUCT_PAGE_ID` (`_fancy_product_page`) — the ID of the Page/Post to use as that product's front-end. Resolve it only through `get_fancy_product_page_id()`; do not read the meta key directly.
+
+`META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA` (`_suppress_fancy_page_product_schema`) — set only when an administrator has opted *out* of writing product structured data to the fancy page. The logic is deliberately inverted: an absent or empty value means "write the schema", so products saved before this option existed keep emitting it, and the admin checkbox ("Write the structured data to the fancy product page?") reads as ticked by default. Read it through `is_fancy_page_product_schema_suppressed()`.
 
 ## Request flows
 
@@ -48,7 +52,7 @@ A single post-meta key, `META_FANCY_PRODUCT_PAGE_ID` (`_fancy_product_page`), is
 
 **Front-end — links:** the `post_type_link` filter rewrites every product permalink to its fancy page, so the whole site links to the page.
 
-**Front-end — the fancy page itself:** on `wp`, if the current page is a fancy product page, the plugin finds the owning product and calls `WC()->structured_data->generate_product_data()`; the `woocommerce_structured_data_type_for_page` filter then adds `product` to the page's structured-data types so the JSON-LD is emitted.
+**Front-end — the fancy page itself:** on `wp`, if the current request is singular and its post type is one of `get_fancy_page_post_types()`, the plugin finds the owning product and calls `WC()->structured_data->generate_product_data()`; the `woocommerce_structured_data_type_for_page` filter then adds `product` to the page's structured-data types so the JSON-LD is emitted. Both halves are skipped when the product has opted out via `META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA`.
 
 **Front-end — cart:** on `wp_loaded` (priority 19), a non-numeric `add-to-cart` request value is resolved from SKU to product ID before WooCommerce processes it.
 

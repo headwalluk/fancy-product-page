@@ -33,7 +33,8 @@ or by SKU:
 1. Edit the WooCommerce **product**.
 2. Find the **Fancy Product Page** meta box.
 3. In the dropdown, choose the page you published. The default option, *Standard WooCommerce product page*, leaves the product using WooCommerce's normal template.
-4. **Update** the product.
+4. Leave **Write the structured data to the fancy product page?** ticked (the default). Only untick it if something else on that page — an SEO plugin, or hand-written markup — already outputs product schema.org data, in which case two sets of product JSON-LD would compete.
+5. **Update** the product.
 
 That's it. Links generated for the product (menus, related products, shop loop) now resolve to your page, and the page emits product structured data for SEO.
 

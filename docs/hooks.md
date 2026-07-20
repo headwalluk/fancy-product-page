@@ -7,7 +7,7 @@ WordPress / WooCommerce hooks this plugin consumes, and the filters it provides 
 | Hook | Type | Callback | Purpose |
 | --- | --- | --- | --- |
 | `post_type_link` | filter | `Plugin::override_product_permalink()` | Rewrite a product's permalink to its associated fancy page. |
-| `wp` | action | `Plugin::late_init()` | On a fancy product page, generate WooCommerce product structured data for the owning product. |
+| `wp` | action | `Plugin::late_init()` | On a fancy product page (any post type in `get_fancy_page_post_types()`), generate WooCommerce product structured data for the owning product, unless that product has opted out. |
 | `woocommerce_structured_data_type_for_page` | filter | `Plugin::structured_data_types_for_page()` | Add `product` to the page's structured-data types so the JSON-LD is output. |
 | `wp_loaded` (priority 19) | action | `Plugin::add_to_cart_action()` | Convert a non-numeric `add-to-cart` value (SKU) to a product ID. Registered only when `CONVERT_ADD_TO_CART_SKU_TO_ID` is `true`. |
 | `admin_init` | action | `Plugin::admin_init()` | Register admin asset hooks, instantiate the product meta box, handle settings save. |

@@ -41,6 +41,39 @@ function pp_fpp_get_next_control_id(): string
 }
 
 /**
+ * Render a labelled checkbox with optional help text.
+ *
+ * @param string $field_name         The checkbox's name attribute.
+ * @param string $label              Field label (rendered beside the checkbox).
+ * @param bool   $is_checked         Whether the checkbox starts ticked.
+ * @param string $help_text          Optional help text shown under the label.
+ * @param string $additional_classes Space-separated extra classes for the input.
+ *
+ * @return string Escaped HTML.
+ */
+function pp_fpp_get_checkbox_html(string $field_name, string $label, bool $is_checked = false, string $help_text = '', string $additional_classes = ''): string
+{
+    $classes = explode(' ', $additional_classes);
+    $control_id = pp_fpp_get_next_control_id();
+
+    $html = sprintf(
+        '<label class="pp-checkbox-label" for="%s"><input type="checkbox" id="%s" name="%s" value="1" class="%s" %s />%s</label>',
+        esc_attr($control_id),
+        esc_attr($control_id),
+        esc_attr($field_name),
+        esc_attr(implode(' ', $classes)),
+        $is_checked ? 'checked' : '',
+        esc_html($label)
+    );
+
+    if (!empty($help_text)) {
+        $html .= sprintf('<span class="pp-help">%s</span>', esc_html($help_text));
+    }
+
+    return $html;
+}
+
+/**
  * Render a labelled <select> control with optional help text.
  *
  * @param string $field_name         The select's name attribute.

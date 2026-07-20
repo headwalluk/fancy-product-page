@@ -38,7 +38,7 @@ class Settings extends Settings_Core
     public function render_settings_page()
     {
         if (!current_user_can($this->settings_cap)) {
-            printf('<p>%s</p>', esc_html__('Not authorized', 'fancy-product-page'));
+            printf('<p>%s</p>', esc_html_x('Not authorized', 'permission error shown in place of the settings page', 'fancy-product-page'));
         } else {
             $this->open_wrap();
 
@@ -60,7 +60,7 @@ class Settings extends Settings_Core
             // 	include PP_TTT_ADMIN_TEMPLATES_DIR . 'settings-woocommerce.php';
             // }
 
-            submit_button(esc_html__('Save Changes', 'fancy-product-page'));
+            submit_button(esc_html_x('Save Changes', 'verb; form submit button label', 'fancy-product-page'));
 
             $this->close_form();
 

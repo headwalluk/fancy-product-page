@@ -34,13 +34,18 @@ class Product_Meta_Box extends Meta_Box
      *
      * Callback for `add_meta_boxes`.
      *
+     * The title is the plugin's name — a proper noun — so it is deliberately
+     * NOT wrapped in a translation function. Machine translation renders it as
+     * a description ("Page produit haut de gamme" in French) rather than
+     * leaving the brand intact.
+     *
      * @return void
      */
     public function register_meta_box()
     {
         add_meta_box(
             get_class($this), // Unique ID
-            __('Fancy Product Page', 'fancy-product-page'),
+            'Fancy Product Page',
             [$this, 'render'],
             $this->get_post_types()
         );
@@ -95,6 +100,18 @@ class Product_Meta_Box extends Meta_Box
             } else {
                 // error_log('Delete meta: ' . $post_id);
                 delete_post_meta($post_id, META_FANCY_PRODUCT_PAGE_ID);
+            }
+
+            /*
+             * Reverse logic: the checkbox asks whether to WRITE the schema, but
+             * the meta records SUPPRESSION, so it is only stored when the box is
+             * unticked. An unticked checkbox posts nothing at all, hence the
+             * array_key_exists() test.
+             */
+            if (array_key_exists(FIELD_WRITE_FANCY_PAGE_PRODUCT_SCHEMA, $_POST)) {
+                delete_post_meta($post_id, META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA);
+            } else {
+                update_post_meta($post_id, META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA, 'yes');
             }
         }
     }

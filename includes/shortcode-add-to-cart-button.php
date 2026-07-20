@@ -78,7 +78,7 @@ function do_shortcode_add_to_cart_btn($atts)
                 '<a href="?add-to-cart=%s&quantity=%d" class="button" rel="nofollow"><span class="product-name">%s</span>%s%s</a>', // ...
                 esc_attr($args['id']),
                 $args['qty'],
-                esc_html__('Add to cart', 'fancy-product-page'),
+                esc_html_x('Add to cart', 'verb; button label on a shop button', 'fancy-product-page'),
                 wp_kses_post($display_price),
                 wp_kses_post($display_qty)
             );
