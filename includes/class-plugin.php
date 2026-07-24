@@ -66,7 +66,7 @@ class Plugin extends Component {
 
 		add_filter( 'post_type_link', array( $this, 'override_product_permalink' ), 10, 4 );
 
-		// add_action('template_redirect', [$this, 'maybe_redirect_to_fancy_page']);
+		add_action( 'template_redirect', array( $this, 'maybe_redirect_to_fancy_page' ) );
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'wp', array( $this, 'late_init' ) );
