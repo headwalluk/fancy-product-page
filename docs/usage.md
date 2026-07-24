@@ -50,5 +50,5 @@ By default you can pick **Pages** and **Posts**. Developers can broaden or narro
 
 ## Notes and current limitations
 
-- The original `/product/...` URL still resolves to WooCommerce's template. An optional 301 redirect to the fancy page exists in the code but is **not enabled** in this release.
+- The original `/product/...` URL is **301-redirected** to the fancy page, so both visitors and search engines land on the fancy page rather than WooCommerce's default single-product template.
 - The plugin has no settings page; configuration is per-product via the meta box.

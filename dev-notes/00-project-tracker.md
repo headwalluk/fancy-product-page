@@ -26,7 +26,7 @@ This tracker covers the June 2026 modernisation effort: removing the bundled Pow
 - [x] Add GitHub auto-updates + release workflow (Milestone 5). ✅
 - [ ] Code cleanup: dead/disabled code and vestigial Settings (Milestone 3, pending decisions — **deferred until after 1.2.0 is tested & published**).
 - [ ] Run `phpcs` against the new `phpcs.xml` and address WPCS formatting (Milestone 4 follow-up).
-- [ ] **Future maintenance:** remove `maybe_redirect_to_fancy_page()` properly. It predates the current approach — the product's real URL is now handled by the `post_type_link` filter (`override_product_permalink()`), so the unhooked `template_redirect` 301 method is redundant. Left in place for now; remove during the post-1.2.0 cleanup pass. (`output_structured_data()` is dead too — marked `@deprecated` in 1.3.0, still to be deleted.)
+- [x] **Decision (v1.4.0):** `maybe_redirect_to_fancy_page()` is **required functionality**, not dead code. It was only ever commented-out (never deleted) because we thought the `post_type_link` permalink override made it redundant — but the override only rewrites *generated* links; it doesn't catch direct hits or crawls of the canonical `/product/...` URL, which is what this 301 handles. Re-hooked on `template_redirect` in v1.4.0. ✅ (`output_structured_data()` is still dead — marked `@deprecated` in 1.3.0, still to be deleted.)
 - [ ] `Settings` class is vestigial — no admin menu, no options defined. Either implement a real settings page or remove the scaffolding.
 - [x] Plugin header lists `Domain Path: /languages` — `languages/` now populated (`.pot` + 8 locales) and text domain loaded on `init`. ✅
 - [ ] Align code to WordPress Coding Standards (WPCS) — current code uses tight, non-WPCS formatting.
@@ -136,7 +136,7 @@ Functions:
 
 #### Implementation Checklist
 
-- [ ] Resolve `maybe_redirect_to_fancy_page()` — wire behind a setting or remove (note the permalink override already covers most link cases).
+- [x] Resolve `maybe_redirect_to_fancy_page()` — **kept as required functionality**, re-hooked on `template_redirect` in v1.4.0 (the permalink override rewrites generated links but does not catch direct hits/crawls of the canonical URL).
 - [ ] Remove `output_structured_data()` dead code and unused `$rendered_product_ids`.
 - [ ] Strip commented-out scaffolding copied from the source template plugin.
 - [ ] Decide whether to keep the `Settings` page (implement) or remove it.
@@ -215,6 +215,6 @@ Functions:
 
 - Whole-library bundling of `pp-core.php` (addressed in Milestone 1).
 - Vestigial `Settings` class with no menu or options.
-- Disabled/dead code (`maybe_redirect_to_fancy_page`, `output_structured_data`).
+- Dead code (`output_structured_data`). (`maybe_redirect_to_fancy_page` was disabled but is required — re-enabled in v1.4.0.)
 - No coding-standards config, no tests, no i18n catalogue.
 - Non-WPCS code formatting throughout.

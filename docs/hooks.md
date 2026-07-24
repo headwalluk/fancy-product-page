@@ -14,9 +14,8 @@ WordPress / WooCommerce hooks this plugin consumes, and the filters it provides 
 | `admin_enqueue_scripts` | action | `Admin_Hooks::admin_enqueue_scripts()` | Enqueue `assets/fpp-admin.css` on the product add/edit/list screens. |
 | `add_meta_boxes` | action | `Product_Meta_Box::register_meta_box()` | Register the "Fancy Product Page" meta box on the `product` post type. |
 | `save_post` | action | `Product_Meta_Box::save()` | Persist (or delete) the chosen page ID on the product. |
+| `template_redirect` | action | `Plugin::maybe_redirect_to_fancy_page()` | 301-redirect the canonical `/product/...` URL to the product's fancy page. |
 | `add_shortcode( 'add_to_cart_btn' )` | shortcode | `do_shortcode_add_to_cart_btn()` | Themed add-to-cart button (see [shortcode.md](shortcode.md)). |
-
-> **Not enabled by default:** `Plugin::maybe_redirect_to_fancy_page()` (a `template_redirect` 301 from the canonical product URL to the fancy page) exists in the code but is not hooked.
 
 ## Filters provided
 

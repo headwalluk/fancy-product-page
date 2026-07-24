@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2026-07-24
+
+### Added
+- **Canonical product URL now redirects to the fancy page.** When a product has an associated fancy page, requests to its canonical `/product/...` URL are 301-redirected to that page (`Plugin::maybe_redirect_to_fancy_page()`, hooked on `template_redirect`). Previously the permalink filter only rewrote the links WordPress/WooCommerce *generated*; direct hits and search-engine crawls of the underlying product URL still reached WooCommerce's default single-product template. This closes that gap so all traffic resolves to the fancy page.
+
+---
+
 ## [1.3.0] - 2026-07-20
 
 ### Added

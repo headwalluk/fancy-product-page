@@ -63,8 +63,9 @@ The behaviour is driven by hooks registered in `Plugin::run()`:
 4. **SKU → ID add-to-cart** — `wp_loaded` (priority 19) → `add_to_cart_action()`, gated by the `CONVERT_ADD_TO_CART_SKU_TO_ID` constant. Lets `?add-to-cart=<SKU>` work by converting a non-numeric `add-to-cart` value to a product ID before WooCommerce processes it.
 5. **Add-to-cart shortcode** — `[add_to_cart_btn id="" sku="" qty=""]` (`includes/shortcode-add-to-cart-button.php`). Renders a themed add-to-cart button (resolves product by id or SKU, shows price and quantity) for embedding inside the fancy page.
 6. **Admin meta box** — `Product_Meta_Box` adds a "Fancy Product Page" selector to the product editor. The dropdown lists eligible pages/posts; saving writes the chosen ID to `META_FANCY_PRODUCT_PAGE_ID`, or deletes the meta when "Standard WooCommerce product page" (0) is chosen.
+7. **Canonical → fancy-page redirect** — `template_redirect` action → `maybe_redirect_to_fancy_page()`. A `REDIRECT_HTTP_CODE` (301) redirect from the canonical `/product/...` URL to the associated fancy page, so direct hits and search-engine crawls of the WooCommerce URL land on the fancy page. Required functionality (re-enabled in v1.4.0); the permalink override (step 1) rewrites generated links, and this catches direct requests to the underlying product URL.
 
-> **Disabled code:** `maybe_redirect_to_fancy_page()` (a `template_redirect` 301 from the canonical product URL to the fancy page) exists but is **not** hooked. `output_structured_data()` is dead code, now marked `@deprecated` and calling `_deprecated_function()`. Both are candidates for cleanup during the refactor.
+> **Dead code:** `output_structured_data()` is dead code, now marked `@deprecated` and calling `_deprecated_function()`. A candidate for cleanup during the refactor.
 
 ### Constants (`constants.php`)
 
@@ -77,7 +78,7 @@ All magic strings live in `constants.php` under the `Fancy_Product_Page` namespa
 | `META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA` | `_suppress_fancy_page_product_schema` | Post-meta key set only when an admin opts *out* of writing product schema to the fancy page (reverse logic — absent means "write it") |
 | `FIELD_WRITE_FANCY_PAGE_PRODUCT_SCHEMA` | `pp_fpp_write_product_schema` | Name of the positively-worded meta-box checkbox backing the above |
 | `CONVERT_ADD_TO_CART_SKU_TO_ID` | `true` | Enable `?add-to-cart=<SKU>` support |
-| `REDIRECT_HTTP_CODE` | `301` | Status used by the (currently disabled) redirect |
+| `REDIRECT_HTTP_CODE` | `301` | Status used by `maybe_redirect_to_fancy_page()` (canonical → fancy-page redirect) |
 
 Convention going forward: `META_` for post-meta keys, `OPT_` for option keys, `DEF_` for defaults (mirrors bullfix-erp).
 

@@ -4,7 +4,7 @@ Tags: woocommerce, product page, landing page, seo, page builder
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,9 @@ Yes. The "fancy page" is just a normal WordPress Page or Post, so any block edit
 The plugin checks for WooCommerce before doing any product work and degrades gracefully, so it will not fatal-error.
 
 == Changelog ==
+
+= 1.4.0 =
+* The canonical `/product/...` URL now 301-redirects to the product's fancy page. Previously only generated links pointed at the fancy page, so direct visits and search-engine crawls of the product URL still hit WooCommerce's default template.
 
 = 1.3.0 =
 * Added a "Write the structured data to the fancy product page?" checkbox to the product meta box, so schema.org output can be turned off per product when an SEO plugin already provides it. Ticked by default; existing products are unaffected.

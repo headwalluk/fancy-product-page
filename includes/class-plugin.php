@@ -285,7 +285,9 @@ class Plugin extends Component {
 	/**
 	 * Redirect the current request to the product's fancy page.
 	 *
-	 * Not hooked by default; available for opt-in `template_redirect` use.
+	 * Hooked on `template_redirect`: when the canonical `/product/...` URL is
+	 * requested and the product has an associated fancy page, 301 to that page
+	 * so links, visitors and search engines resolve to the fancy page.
 	 *
 	 * @return void
 	 */

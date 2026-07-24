@@ -4,7 +4,7 @@
  * Plugin Name:       Fancy Product Page
  * Plugin URI:        https://github.com/headwalluk/fancy-product-page
  * Description:       Display a WooCommerce product using an ordinary WordPress Page or Post in place of the default single-product template.
- * Version:           1.3.0
+ * Version:           1.4.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Requires Plugins:  woocommerce
@@ -22,7 +22,7 @@
 defined( 'WPINC' ) || die();
 
 const PP_FPP_NAME    = 'fancy-product-page';
-const PP_FPP_VERSION = '1.3.0';
+const PP_FPP_VERSION = '1.4.0';
 
 define( 'PP_FPP_FILE', __FILE__ );
 define( 'PP_FPP_BASENAME', plugin_basename( __FILE__ ) );
