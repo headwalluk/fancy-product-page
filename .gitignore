@@ -35,3 +35,13 @@ wp-config-local.php
 # Archives
 *.zip
 *.tar.gz
+
+# Claude Code per-machine settings
+.claude/settings.local.json
+
+# Emacs Projectile project marker
+.projectile
+
+# Private development notes. Untracked while the repository is public on GitHub.
+# Backed up with the dev site, and blocked from remote access by dev-notes/.htaccess.
+dev-notes/

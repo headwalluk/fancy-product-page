@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1] - 2026-11-08
+
+### Changed
+- **GitHub updater replaced with the shared portable updater** from Quick 2FA. It takes the plugin's details as constructor arguments and is loaded from the main plugin file on admin, cron and WP-CLI requests only, no longer on front-end requests. The `fancy_product_page_updater_enabled` filter is unchanged.
+- The installed version is read from the plugin header rather than `PP_FPP_VERSION`, and an error is logged if the two disagree.
+- A failed GitHub lookup now backs off for an hour instead of retrying on every update check.
+- The versioned-zip fallback requires a digit after the slug, so an asset like `fancy-product-page-docs.zip` is never mistaken for the plugin.
+- Release data is cached in the `fancy_product_page_github_release` transient. The old `pp_fpp_github_release` transient is no longer used and expires by itself.
+- The release workflow refuses to build unless the plugin header, `PP_FPP_VERSION` and the `readme.txt` stable tag all match the git tag.
+
+- The whole plugin now passes the WordPress Coding Standards with no errors or warnings. Request values are unslashed and sanitised, comparisons are strict, and the meta box, permalink filter and structured-data code check their objects with `instanceof` before use.
+- Developer docs moved to `docs/developers/` (`architecture.md`, `hooks-and-filters.md`), with a new `docs/README.md` index.
+
+### Removed
+- `UPDATER_CACHE_KEY` and `UPDATER_CACHE_TTL` constants; the updater derives its own cache names.
+- `Meta_Box::is_trying_to_save_meta_box()`, which had no callers.
+- The body of the deprecated `Plugin::output_structured_data()`, which never worked; it now only raises its deprecation notice.
+- `dev-notes/` is no longer tracked in the public repository.
+
+---
+
 ## [1.4.0] - 2026-07-24
 
 ### Added

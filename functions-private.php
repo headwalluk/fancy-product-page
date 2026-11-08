@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Private, namespaced helper functions for internal plugin use.
  *
@@ -8,17 +7,16 @@
 
 namespace Fancy_Product_Page;
 
-defined('WPINC') || die();
+defined( 'WPINC' ) || die();
 
 /**
  * Get the plugin's settings controller from the global plugin instance.
  *
  * @return Settings The settings controller.
  */
-function get_settings_controller()
-{
-    global $pp_fpp_plugin;
-    return $pp_fpp_plugin->get_settings_controller();
+function get_settings_controller() {
+	global $pp_fpp_plugin;
+	return $pp_fpp_plugin->get_settings_controller();
 }
 
 /**
@@ -33,30 +31,30 @@ function get_settings_controller()
  *
  * @return int The associated page/post ID, or 0 if none.
  */
-function get_fancy_product_page_id(int $product_id = 0): int
-{
-    $post_id = 0;
+function get_fancy_product_page_id( int $product_id = 0 ): int {
+	$post_id = 0;
 
-    if ($product_id == 0 && is_singular('product')) {
-        $product_id = get_the_ID();
-    }
+	if ( 0 === $product_id && is_singular( POST_TYPE_PRODUCT ) ) {
+		$product_id = (int) get_the_ID();
+	}
 
-    if (!function_exists('WC')) {
-        // ...
-    } elseif ($product_id <= 0) {
-        // Invalid product id
-    } elseif (get_post_type($product_id) != 'product') {
-        // ...
-    } elseif (($fancy_product_page_id = intval(get_post_meta($product_id, META_FANCY_PRODUCT_PAGE_ID, true))) < 0) {
-        // ...
-        // } elseif (!in_array(get_post_type($fancy_product_page_id), ['page', 'post'])) {
-    } elseif (!in_array(get_post_type($fancy_product_page_id), get_fancy_page_post_types())) {
-        // ...
-    } else {
-        $post_id = $fancy_product_page_id;
-    }
+	$fancy_product_page_id = $product_id > 0 ? (int) get_post_meta( $product_id, META_FANCY_PRODUCT_PAGE_ID, true ) : 0;
 
-    return $post_id;
+	if ( ! function_exists( 'WC' ) ) {
+		// WooCommerce is not active.
+	} elseif ( $product_id <= 0 ) {
+		// No product to look up.
+	} elseif ( POST_TYPE_PRODUCT !== get_post_type( $product_id ) ) {
+		// Not a product.
+	} elseif ( $fancy_product_page_id <= 0 ) {
+		// No fancy page mapped.
+	} elseif ( ! in_array( get_post_type( $fancy_product_page_id ), get_fancy_page_post_types(), true ) ) {
+		// Mapped post is not an eligible fancy-page type.
+	} else {
+		$post_id = $fancy_product_page_id;
+	}
+
+	return $post_id;
 }
 
 /**
@@ -70,13 +68,12 @@ function get_fancy_product_page_id(int $product_id = 0): int
  *
  * @return bool True when the schema should be suppressed.
  */
-function is_fancy_page_product_schema_suppressed(int $product_id): bool
-{
-    if ($product_id <= 0) {
-        return false;
-    }
+function is_fancy_page_product_schema_suppressed( int $product_id ): bool {
+	if ( $product_id <= 0 ) {
+		return false;
+	}
 
-    return !empty(get_post_meta($product_id, META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA, true));
+	return ! empty( get_post_meta( $product_id, META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA, true ) );
 }
 
 /**
@@ -88,14 +85,13 @@ function is_fancy_page_product_schema_suppressed(int $product_id): bool
  *
  * @return array List of post type slugs.
  */
-function get_fancy_page_post_types(): array
-{
-    global $pp_fpp_post_types;
-    if (is_null($pp_fpp_post_types)) {
-        $pp_fpp_post_types = ['page', 'post'];
+function get_fancy_page_post_types(): array {
+	global $pp_fpp_post_types;
+	if ( is_null( $pp_fpp_post_types ) ) {
+		$pp_fpp_post_types = array( 'page', 'post' );
 
-        $pp_fpp_post_types = (array) apply_filters('fancy_product_page_post_types', $pp_fpp_post_types);
-    }
+		$pp_fpp_post_types = (array) apply_filters( 'fancy_product_page_post_types', $pp_fpp_post_types );
+	}
 
-    return $pp_fpp_post_types;
+	return $pp_fpp_post_types;
 }

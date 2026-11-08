@@ -1,10 +1,9 @@
 <?php
-
 /**
  * Plugin Name:       Fancy Product Page
  * Plugin URI:        https://github.com/headwalluk/fancy-product-page
  * Description:       Display a WooCommerce product using an ordinary WordPress Page or Post in place of the default single-product template.
- * Version:           1.4.0
+ * Version:           1.4.1
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Requires Plugins:  woocommerce
@@ -22,7 +21,7 @@
 defined( 'WPINC' ) || die();
 
 const PP_FPP_NAME    = 'fancy-product-page';
-const PP_FPP_VERSION = '1.4.0';
+const PP_FPP_VERSION = '1.4.1';
 
 define( 'PP_FPP_FILE', __FILE__ );
 define( 'PP_FPP_BASENAME', plugin_basename( __FILE__ ) );
@@ -47,10 +46,15 @@ require_once PP_FPP_DIR . 'includes/class-settings.php';
 require_once PP_FPP_DIR . 'includes/class-product-meta-box.php';
 
 require_once PP_FPP_DIR . 'includes/class-admin-hooks.php';
-require_once PP_FPP_DIR . 'includes/class-github-updater.php';
 require_once PP_FPP_DIR . 'includes/class-plugin.php';
 
 require_once PP_FPP_DIR . 'includes/shortcode-add-to-cart-button.php';
+
+// GitHub auto-updates (admin, cron and WP-CLI only — no need to load on front-end requests).
+if ( is_admin() || ( defined( 'DOING_CRON' ) && DOING_CRON ) || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+	require_once PP_FPP_DIR . 'includes/class-github-updater.php';
+	new Fancy_Product_Page\Github_Updater( PP_FPP_FILE, Fancy_Product_Page\UPDATER_GITHUB_REPO, PP_FPP_VERSION, 'fancy_product_page_updater_enabled' );
+}
 
 /**
  * Bootstrap the plugin: create the global plugin instance and run it.

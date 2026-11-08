@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Main plugin orchestrator.
  *
@@ -60,8 +59,6 @@ class Plugin extends Component {
 	public function run() {
 		$this->settings = new Settings( $this->name, $this->version );
 
-		new Github_Updater();
-
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 
 		add_filter( 'post_type_link', array( $this, 'override_product_permalink' ), 10, 4 );
@@ -117,18 +114,19 @@ class Plugin extends Component {
 	 * @return void
 	 */
 	public function add_to_cart_action( $url ) {
-		$sku = null;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce's add-to-cart links carry no nonce; WooCommerce itself handles the request.
+		$sku = isset( $_REQUEST['add-to-cart'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['add-to-cart'] ) ) : '';
 
-		if ( ! array_key_exists( 'add-to-cart', $_REQUEST ) ) {
-			// ...
-		} elseif ( is_numeric( $sku = wp_unslash( $_REQUEST['add-to-cart'] ) ) || empty( $sku ) ) {
-			// ...
+		if ( '' === $sku || is_numeric( $sku ) ) {
+			// No add-to-cart request, or already a product ID.
 		} elseif ( ! function_exists( 'wc_get_product_id_by_sku' ) ) {
-			// ...
-		} elseif ( ( $product_id = wc_get_product_id_by_sku( $sku ) ) <= 0 ) {
-			// ...
+			// WooCommerce is not active.
 		} else {
-			$_REQUEST['add-to-cart'] = $product_id;
+			$product_id = (int) wc_get_product_id_by_sku( $sku );
+
+			if ( $product_id > 0 ) {
+				$_REQUEST['add-to-cart'] = $product_id;
+			}
 		}
 	}
 
@@ -150,14 +148,15 @@ class Plugin extends Component {
 	 */
 	public function late_init() {
 		if ( ! function_exists( 'WC' ) ) {
-			error_log( __FUNCTION__ . ' : Class WC_Structured_Data not found' );
+			error_log( 'Fancy_Product_Page ' . __METHOD__ . ' [error]: WooCommerce is not active; product structured data not generated.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Records a missing hard dependency.
 		} elseif ( ! is_singular( get_fancy_page_post_types() ) ) {
-			// ...
+			// Not a page that can be a fancy product page.
 		} else {
 			$query = array(
 				'post_type'   => POST_TYPE_PRODUCT,
 				'post_status' => 'publish',
 				'numberposts' => 1,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- The product is found by its fancy-page meta; one row, singular pages only.
 				'meta_query'  => array(
 					array(
 						'key'     => META_FANCY_PRODUCT_PAGE_ID,
@@ -172,9 +171,9 @@ class Plugin extends Component {
 				$post       = $posts[0];
 				$product_id = $post->ID;
 
-				if ( ! is_fancy_page_product_schema_suppressed( $product_id ) ) {
-					$product = wc_get_product( $product_id );
+				$product = is_fancy_page_product_schema_suppressed( $product_id ) ? null : wc_get_product( $product_id );
 
+				if ( $product instanceof \WC_Product ) {
 					WC()->structured_data->generate_product_data( $product );
 					$this->page_product_id = $product_id;
 				}
@@ -231,33 +230,15 @@ class Plugin extends Component {
 	 */
 	public function get_product_fancy_page_permalink( int $product_id = 0 ) {
 		$permalink = null;
+		$post_id   = get_fancy_product_page_id( $product_id );
 
-		if ( empty( ( $post_id = get_fancy_product_page_id( $product_id ) ) ) ) {
-			// ...
-		} elseif ( empty( ( $fancy_product_page_permalink = get_the_permalink( $post_id ) ) ) ) {
-			// ...
-		} else {
-			$permalink = $fancy_product_page_permalink;
-		}
+		if ( $post_id > 0 ) {
+			$fancy_product_page_permalink = get_the_permalink( $post_id );
 
-		/*
-		if (!function_exists('WC')) {
-			// ...
-		} elseif ($product_id <= 0) {
-			// Invalid product id
-		} elseif (get_post_type($product_id) != 'product') {
-			// ...
-		} elseif (($fancy_product_page_id = intval(get_post_meta($product_id, META_FANCY_PRODUCT_PAGE_ID, true))) < 0) {
-			// ...
-		} elseif (!in_array(get_post_type($fancy_product_page_id), ['page', 'post'])) {
-			// ...
-		} elseif (empty(($fancy_product_page_permalink = get_the_permalink($fancy_product_page_id)))) {
-			// ...
-			// } elseif (empty(($fancy_product_page_permalink = get_page_link($fancy_product_page_id)))) {
-		} else {
-			$permalink = $fancy_product_page_permalink;
+			if ( is_string( $fancy_product_page_permalink ) && '' !== $fancy_product_page_permalink ) {
+				$permalink = $fancy_product_page_permalink;
+			}
 		}
-		*/
 
 		return $permalink;
 	}
@@ -275,7 +256,9 @@ class Plugin extends Component {
 	 * @return string
 	 */
 	public function override_product_permalink( $post_link, $post, $leavename, $sample ) {
-		if ( ! empty( ( $fancy_product_page_permalink = $this->get_product_fancy_page_permalink( $post->ID ) ) ) ) {
+		$fancy_product_page_permalink = $post instanceof \WP_Post ? $this->get_product_fancy_page_permalink( $post->ID ) : null;
+
+		if ( null !== $fancy_product_page_permalink ) {
 			$post_link = $fancy_product_page_permalink;
 		}
 
@@ -292,17 +275,19 @@ class Plugin extends Component {
 	 * @return void
 	 */
 	public function maybe_redirect_to_fancy_page() {
-		if ( ! empty( ( $fancy_product_page_permalink = $this->get_product_fancy_page_permalink() ) ) ) {
+		$fancy_product_page_permalink = $this->get_product_fancy_page_permalink();
+
+		if ( null !== $fancy_product_page_permalink ) {
+			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Target is this site's own permalink; wp_safe_redirect() would break domain-mapped sites.
 			wp_redirect( $fancy_product_page_permalink, REDIRECT_HTTP_CODE );
-			die();
+			exit;
 		}
 	}
 
 	/**
 	 * Output WooCommerce structured data for the recorded product IDs.
 	 *
-	 * @deprecated 1.3.0 Never hooked, and it reads a `$rendered_product_ids`
-	 *                   property that does not exist. Structured data is
+	 * @deprecated 1.3.0 Never hooked, and never worked. Structured data is
 	 *                   generated in {@see late_init()} instead. Scheduled for
 	 *                   removal in a future release.
 	 *
@@ -310,18 +295,5 @@ class Plugin extends Component {
 	 */
 	public function output_structured_data() {
 		_deprecated_function( __METHOD__, '1.3.0', __CLASS__ . '::late_init()' );
-
-		if ( empty( $this->rendered_product_ids ) ) {
-			// ...
-		} elseif ( ! class_exists( 'WC_Structured_Data' ) ) {
-			error_log( __FUNCTION__ . ' : Class WC_Structured_Data not found' );
-		} else {
-			error_log( 'Output structured data: ' . json_encode( $this->rendered_product_ids ) );
-
-			$structured_data = new \WC_Structured_Data();
-			foreach ( $this->rendered_product_ids as $product_id ) {
-				$structured_data->generate_product_data();
-			}
-		}
 	}
 }

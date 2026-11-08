@@ -37,19 +37,11 @@ The plugin self-updates from its GitHub releases. Once installed, new tagged rel
 
 See [docs/usage.md](docs/usage.md) for a step-by-step walkthrough, and [docs/shortcode.md](docs/shortcode.md) for the `[add_to_cart_btn]` reference.
 
-## Developer documentation
+## Documentation
 
-The `docs/` directory is the entry point for any developer picking this project up later:
+[docs/README.md](docs/README.md) is the index. Site administrators start with [usage](docs/usage.md) and the [shortcode reference](docs/shortcode.md); developers with [architecture](docs/developers/architecture.md) and [hooks and filters](docs/developers/hooks-and-filters.md).
 
-- [docs/architecture.md](docs/architecture.md) — plugin structure, classes, bootstrap, conventions
-- [docs/hooks.md](docs/hooks.md) — WordPress/WooCommerce hooks consumed, and filters this plugin provides
-- [docs/shortcode.md](docs/shortcode.md) — `[add_to_cart_btn]` attributes and examples
-- [docs/usage.md](docs/usage.md) — administrator walkthrough
-
-See also [CLAUDE.md](CLAUDE.md) for an architectural overview oriented at AI-assisted development.
-
-Project history and active milestones: [dev-notes/00-project-tracker.md](dev-notes/00-project-tracker.md).
-Per-version release notes: [CHANGELOG.md](CHANGELOG.md).
+See also [CLAUDE.md](CLAUDE.md) for the coding conventions, and [CHANGELOG.md](CHANGELOG.md) for per-version release notes.
 
 ## License
 

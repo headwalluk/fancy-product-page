@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Base class for plugin components.
  *
@@ -13,53 +12,53 @@
 
 namespace Fancy_Product_Page;
 
-defined('WPINC') || die();
+defined( 'WPINC' ) || die();
 
-class Component
-{
-    /**
-     * Plugin name/slug.
-     *
-     * @var string
-     */
-    protected $name;
+/**
+ * Base component: holds the plugin name and version.
+ */
+class Component {
 
-    /**
-     * Plugin version.
-     *
-     * @var string
-     */
-    protected $version;
+	/**
+	 * Plugin name/slug.
+	 *
+	 * @var string
+	 */
+	protected $name;
 
-    /**
-     * Constructor.
-     *
-     * @param string $name    Plugin name/slug.
-     * @param string $version Plugin version.
-     */
-    public function __construct(string $name, string $version)
-    {
-        $this->name = $name;
-        $this->version = $version;
-    }
+	/**
+	 * Plugin version.
+	 *
+	 * @var string
+	 */
+	protected $version;
 
-    /**
-     * Get the plugin name/slug.
-     *
-     * @return string
-     */
-    public function get_name(): string
-    {
-        return $this->name;
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param string $name    Plugin name/slug.
+	 * @param string $version Plugin version.
+	 */
+	public function __construct( string $name, string $version ) {
+		$this->name    = $name;
+		$this->version = $version;
+	}
 
-    /**
-     * Get the plugin version.
-     *
-     * @return string
-     */
-    public function get_version(): string
-    {
-        return $this->version;
-    }
+	/**
+	 * Get the plugin name/slug.
+	 *
+	 * @return string
+	 */
+	public function get_name(): string {
+		return $this->name;
+	}
+
+	/**
+	 * Get the plugin version.
+	 *
+	 * @return string
+	 */
+	public function get_version(): string {
+		return $this->version;
+	}
 }

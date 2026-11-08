@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin settings controller.
  *
@@ -8,7 +7,7 @@
 
 namespace Fancy_Product_Page;
 
-defined('WPINC') || die();
+defined( 'WPINC' ) || die();
 
 /**
  * Concrete settings controller for the plugin.
@@ -17,81 +16,53 @@ defined('WPINC') || die();
  * save behaviour. Currently minimal: no settings page is registered and no
  * options are defined yet.
  */
-class Settings extends Settings_Core
-{
-    /**
-     * Constructor.
-     *
-     * @param string $name    Plugin name/slug.
-     * @param string $version Plugin version.
-     */
-    public function __construct(string $name, string $version)
-    {
-        parent::__construct($name, $version);
-    }
+class Settings extends Settings_Core {
 
-    /**
-     * Render the settings page.
-     *
-     * @return void
-     */
-    public function render_settings_page()
-    {
-        if (!current_user_can($this->settings_cap)) {
-            printf('<p>%s</p>', esc_html_x('Not authorized', 'permission error shown in place of the settings page', 'fancy-product-page'));
-        } else {
-            $this->open_wrap();
+	/**
+	 * Render the settings page.
+	 *
+	 * @return void
+	 */
+	public function render_settings_page() {
+		if ( ! current_user_can( $this->settings_cap ) ) {
+			printf( '<p>%s</p>', esc_html_x( 'Not authorized', 'permission error shown in place of the settings page', 'fancy-product-page' ) );
+		} else {
+			$this->open_wrap();
 
-            $this->render_page_title();
+			$this->render_page_title();
 
-            $this->open_form();
+			$this->open_form();
 
-            $settings = $this;
+			submit_button( esc_html_x( 'Save Changes', 'verb; form submit button label', 'fancy-product-page' ) );
 
-            // if ((bool) apply_filters('ttt_is_importer_enabled', IS_IMPORTER_ENABLED)) {
-            // 	include PP_TTT_ADMIN_TEMPLATES_DIR . 'settings-import.php';
-            // }
+			$this->close_form();
 
-            // if ((bool) apply_filters('ttt_is_business_service_enabled', IS_BUSINESS_SERVICE_ENABLED)) {
-            // 	include PP_TTT_ADMIN_TEMPLATES_DIR . 'settings-business-service.php';
-            // }
+			$this->close_wrap();
+		}
+	}
 
-            // if (is_woocommerce_available()) {
-            // 	include PP_TTT_ADMIN_TEMPLATES_DIR . 'settings-woocommerce.php';
-            // }
+	/**
+	 * Persist submitted settings.
+	 *
+	 * Called by {@see Settings_Core::maybe_save_settings()} after nonce and
+	 * capability checks. No options are defined yet.
+	 *
+	 * @return void
+	 */
+	public function save_settings() {
+		// No options are defined yet.
+	}
 
-            submit_button(esc_html_x('Save Changes', 'verb; form submit button label', 'fancy-product-page'));
+	/**
+	 * Get the default value for an option.
+	 *
+	 * @param string $option_name Option key.
+	 *
+	 * @return mixed The default value, or null when none is defined.
+	 */
+	public function get_default_value( string $option_name ) {
+		$value = null;
 
-            $this->close_form();
-
-            $this->close_wrap();
-        }
-    }
-
-    /**
-     * Persist submitted settings.
-     *
-     * Called by {@see Settings_Core::maybe_save_settings()} after nonce and
-     * capability checks. No options are defined yet.
-     *
-     * @return void
-     */
-    public function save_settings()
-    {
-        // ...
-    }
-
-    /**
-     * Get the default value for an option.
-     *
-     * @param string $option_name Option key.
-     *
-     * @return mixed The default value, or null when none is defined.
-     */
-    public function get_default_value(string $option_name)
-    {
-        $value = null;
-
-        return $value;
-    }
+		return $value;
+	}
 }

@@ -21,6 +21,24 @@
 	<!-- Rules -->
 	<rule ref="WordPress">
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+
+		<!-- An if with elseif branches ends in an explicit else, with no-op branches
+		     holding only a comment. This sniff counts a comment as empty, so only its
+		     if/elseif/else codes are excluded; empty catch, loop and switch bodies are
+		     still errors. -->
+		<exclude name="Generic.CodeAnalysis.EmptyStatement.DetectedIf"/>
+		<exclude name="Generic.CodeAnalysis.EmptyStatement.DetectedElseif"/>
+		<exclude name="Generic.CodeAnalysis.EmptyStatement.DetectedElse"/>
+	</rule>
+
+	<!-- The form helpers in includes/form-helpers.php escape every value they output. -->
+	<rule ref="WordPress.Security.EscapeOutput">
+		<properties>
+			<property name="customAutoEscapedFunctions" type="array">
+				<element value="pp_fpp_get_select_list_html"/>
+				<element value="pp_fpp_get_checkbox_html"/>
+			</property>
+		</properties>
 	</rule>
 
 	<!-- Prefixes -->

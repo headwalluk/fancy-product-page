@@ -1,0 +1,89 @@
+# Architecture
+
+How the plugin is wired together. For the hooks it consumes and provides, see [hooks and filters](hooks-and-filters.md).
+
+## Bootstrap
+
+`fancy-product-page.php` is the only entry point. It:
+
+1. Guards with `defined( 'WPINC' ) || die();`.
+2. Defines `PP_FPP_NAME` and `PP_FPP_VERSION` (`const`), and the path/URL defines: `PP_FPP_FILE`, `PP_FPP_BASENAME`, `PP_FPP_DIR`, `PP_FPP_URL`, `PP_FPP_ADMIN_TEMPLATES_DIR`, `PP_FPP_PUBLIC_TEMPLATES_DIR`, `PP_FPP_ASSETS_DIR`, `PP_FPP_ASSETS_URL`.
+3. `require_once`s, in dependency order: `constants.php`, `functions-private.php`, `functions.php`, `includes/form-helpers.php`, the base classes (`class-component.php`, `class-meta-box.php`, `class-settings-core.php`), the concrete classes, then `includes/shortcode-add-to-cart-button.php`.
+4. On admin, cron and WP-CLI requests only, loads `includes/class-github-updater.php` and creates the `Github_Updater`.
+5. Creates the single global `$pp_fpp_plugin = new Fancy_Product_Page\Plugin( PP_FPP_NAME, PP_FPP_VERSION )` and calls `->run()`.
+
+There is no autoloader and no build step. Classes are loaded explicitly, dependencies first; assets are plain CSS.
+
+## Where hooks are registered
+
+`Plugin::run()` (`includes/class-plugin.php`) registers the plugin's own behaviour; the callbacks live in the same class. Three components register their own hooks instead:
+
+- `Product_Meta_Box` — `add_meta_boxes` and `save_post`, from its constructor. `Plugin::admin_init()` creates it.
+- `Github_Updater` — the plugin-update hooks, from its constructor.
+- The shortcode file — `add_shortcode( 'add_to_cart_btn', … )` when it is loaded.
+
+`Plugin` creates `Settings` in `run()` and `Admin_Hooks` on first use, through `get_admin_hooks()`.
+
+## Component map
+
+```
+Plugin (class-plugin.php) ─────────────────────── extends Component
+├── Settings (class-settings.php) ─────────────── extends Settings_Core ── extends Component
+├── Admin_Hooks (class-admin-hooks.php) ────────── extends Component
+└── Product_Meta_Box (class-product-meta-box.php)  extends Meta_Box
+
+Github_Updater (class-github-updater.php) — standalone; created by the main plugin file
+
+Base classes:
+- Component       (class-component.php)      — stores name/version
+- Meta_Box        (class-meta-box.php)       — nonce rendering and save-time checks
+- Settings_Core   (class-settings-core.php)  — typed option get/set, render helpers
+
+Helpers:
+- functions.php             — global, theme-facing: has_fancy_product_page()
+- functions-private.php     — namespaced internals: get_settings_controller(),
+                              get_fancy_product_page_id(), get_fancy_page_post_types(),
+                              is_fancy_page_product_schema_suppressed()
+- includes/form-helpers.php — is_woocommerce_available(), pp_fpp_get_select_list_html(),
+                              pp_fpp_get_checkbox_html()
+```
+
+## GitHub updater
+
+`Github_Updater` is a verbatim copy of the portable updater maintained in the Quick 2FA plugin; only its `namespace` and `@package` lines differ. Fix it there first, then copy it across — never edit it here alone.
+
+It reads the latest GitHub release, offers it through the WordPress update transient when it is newer than the version in the plugin header, and fills the "View details" modal. A successful lookup is cached for 12 hours (`fancy_product_page_github_release`); a failed one backs off for an hour (`fancy_product_page_github_failed`). To force a fresh check:
+
+```bash
+wp eval 'Fancy_Product_Page\Github_Updater::delete_cache( "fancy-product-page" );'
+```
+
+Each release must attach `fancy-product-page.zip`. `.github/workflows/release.yml` builds it when a `v*.*.*` tag is pushed, and refuses to build unless the plugin header `Version:`, `PP_FPP_VERSION` and the `readme.txt` stable tag all match the tag.
+
+## Data model
+
+Two post-meta keys are stored on a `product` post.
+
+`META_FANCY_PRODUCT_PAGE_ID` (`_fancy_product_page`) — the ID of the Page/Post to use as that product's front-end. Resolve it only through `get_fancy_product_page_id()`; do not read the meta key directly.
+
+`META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA` (`_suppress_fancy_page_product_schema`) — set only when an administrator has opted *out* of writing product structured data to the fancy page. The logic is deliberately inverted: an absent or empty value means "write the schema", so products saved before this option existed keep emitting it, and the admin checkbox ("Write the structured data to the fancy product page?") reads as ticked by default. Read it through `is_fancy_page_product_schema_suppressed()`.
+
+## Request flows
+
+**Admin — choosing a page:** `Product_Meta_Box` registers a meta box on the `product` editor. `admin-templates/product-meta-box.php` renders a `<select>` (via `pp_fpp_get_select_list_html()`) listing eligible pages/posts, and the structured-data checkbox. On save, `Meta_Box::is_saving_meta_box()` checks the nonce, post type, capability and autosave; the chosen ID is then written to the meta key, or the meta is deleted when "Standard WooCommerce product page" (0) is selected.
+
+**Front end — links:** the `post_type_link` filter rewrites every product permalink to its fancy page, so the whole site links to the page.
+
+**Front end — the product's own URL:** on `template_redirect`, a request for a product that has a fancy page is 301-redirected (`REDIRECT_HTTP_CODE`) to that page. This catches direct hits and crawls that the permalink filter cannot.
+
+**Front end — the fancy page itself:** on `wp`, if the current request is singular and its post type is one of `get_fancy_page_post_types()`, the plugin finds the owning product and calls `WC()->structured_data->generate_product_data()`; the `woocommerce_structured_data_type_for_page` filter then adds `product` to the page's structured-data types so the JSON-LD is emitted. Both halves are skipped when the product has opted out via `META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA`.
+
+**Front end — cart:** on `wp_loaded` (priority 19, before WooCommerce's handler at 20), a non-numeric `add-to-cart` request value is resolved from SKU to product ID.
+
+## Conventions
+
+- Register hooks in `Plugin::run()`; implement callbacks in the relevant class.
+- Keep magic strings in `constants.php` (`META_`, `OPT_`, `DEF_`).
+- Guard WooCommerce work with `is_woocommerce_available()` / `function_exists( 'WC' )`.
+- Theme-facing helpers go in the global namespace (`functions.php`); internals stay namespaced.
+- See [CLAUDE.md](../../CLAUDE.md) for the full convention list.

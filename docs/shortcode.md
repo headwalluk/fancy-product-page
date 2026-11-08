@@ -2,7 +2,7 @@
 
 Renders a themed "Add to cart" link for a WooCommerce product, including the product's display price and (optionally) a quantity. Intended for embedding a buy button inside a fancy product page.
 
-Defined in `includes/shortcode-add-to-cart-button.php`. The shortcode does nothing in the admin, during AJAX, or when WooCommerce is unavailable.
+The shortcode outputs nothing in the admin, during AJAX, or when WooCommerce is unavailable.
 
 ## Attributes
 
@@ -12,7 +12,7 @@ Defined in `includes/shortcode-add-to-cart-button.php`. The shortcode does nothi
 | `sku` | string | `''` | Product SKU. If provided, it is resolved to a product ID and **takes precedence over `id`**. |
 | `qty` | int | `1` | Quantity to add. When greater than `1`, the quantity is shown in the button and the price reflects the quantity. |
 
-You must supply either `id` or `sku`. If the product cannot be resolved, the button renders a "Failed to determine the product" placeholder link.
+You must supply either `id` or `sku`. If the product cannot be resolved (an unknown ID or SKU), the button renders a "Failed to determine the product" placeholder link.
 
 ## Output
 
@@ -38,5 +38,6 @@ The button links to `?add-to-cart=<id>&quantity=<qty>` with `class="button" rel=
 
 ## Notes
 
-- SKU-based add-to-cart links work because the plugin also hooks `wp_loaded` to convert a non-numeric `add-to-cart` request value to a product ID (see [hooks.md](hooks.md)). The shortcode itself resolves the SKU to a numeric ID up front, so the generated link uses the numeric product ID.
+- When you give a `sku`, the button's link still uses the numeric product ID.
+- Hand-written links can use a SKU directly — `?add-to-cart=WIDGET-BLUE` — and the plugin converts it to the product ID before WooCommerce adds it to the cart.
 - Prices use WooCommerce's display context, so tax display follows your store settings.

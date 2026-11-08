@@ -14,17 +14,21 @@ The typical use case: build a rich, bespoke landing page for a product in the pa
 - **PHP:** 8.0+ (do NOT use `declare(strict_types=1)` — breaks WordPress/WooCommerce interop)
 - **WordPress:** 6.0+, WooCommerce active (the plugin degrades gracefully when `WC()` is absent)
 - **No build system** — no npm, no Composer, no bundler. Assets are plain CSS.
-- **Self-contained** — as of v1.1.0 the plugin has no external library dependency. It previously bundled the Power Plugins library (`pp-core.php` + `pp-assets/`); the slice it used was reimplemented locally and the library deleted (see `dev-notes/00-project-tracker.md`, Milestone 1).
+- **Self-contained** — as of v1.1.0 the plugin has no external library dependency. It previously bundled the Power Plugins library (`pp-core.php` + `pp-assets/`); the slice it used was reimplemented locally and the library deleted.
+
+This plugin is published publicly on GitHub. Tracked files must contain no client names, client URLs or client data of any kind — in code, comments, docs or commit messages. `dev-notes/` is **private and untracked** (`.gitignore`) for as long as the repository is public, and blocked from the web by `dev-notes/.htaccess`. It is the right home for client-identifying material; never copy from it into a tracked file without scrubbing, and never link a `dev-notes/` path from a tracked file.
 
 ## Commands
 
 ```bash
-phpcs                  # Check WordPress coding standards compliance (once phpcs.xml exists)
+phpcs                  # Check WordPress coding standards compliance
 phpcbf                 # Auto-fix coding standards violations
 phpcs includes/        # Check a specific directory
 ```
 
-The config is in `phpcs.xml` — WordPress standards with prefixes `fancy_product_page`, `pp_fpp`, `Fancy_Product_Page`. The existing code is not yet WPCS-clean (formatting alignment is a tracked milestone). There is no test suite — verification is manual against a live WooCommerce install, or via a PHP load-harness that stubs WordPress functions.
+The config is in `phpcs.xml` — WordPress standards with prefixes `fancy_product_page`, `pp_fpp`, `Fancy_Product_Page`. The whole plugin is phpcs-clean: **no errors and no warnings**. Keep it that way — run `phpcs` before every commit, and give every `phpcs:ignore` the exact sniff name and a `-- reason`. The form helpers that escape their own output are declared in `phpcs.xml` (`customAutoEscapedFunctions`) rather than ignored at each call site.
+
+There is no test suite. Behaviour is exercised against the live dev site through WP-CLI (`wp eval`) and `curl`; reset any state you touch afterwards, and test the defensive path (a wrong-typed hook argument, a bad nonce) as well as the happy one.
 
 ## Architecture
 
@@ -45,7 +49,7 @@ There is **no Composer autoloader** — classes are manually `require_once`d, de
 - **`Settings`** (`class-settings.php`) — Extends `Settings_Core`. Currently a thin/vestigial shell: it can render and save a settings page but **no admin menu registers it and no options are defined yet**. `save_settings()` and `get_default_value()` are empty placeholders.
 - **`Admin_Hooks`** (`class-admin-hooks.php`) — Extends `Component`. Enqueues admin assets on the product edit/list screens.
 - **`Product_Meta_Box`** (`class-product-meta-box.php`) — Extends `Meta_Box`. Registers the "Fancy Product Page" meta box on the `product` post type and saves the selected page ID to post meta.
-- **`Github_Updater`** (`class-github-updater.php`) — Standalone (no base class). Checks the GitHub repo (`UPDATER_GITHUB_REPO`) for the latest release and serves it through the WP plugin-update system. Instantiated in `Plugin::run()` so it works under wp-cron auto-updates, not just admin. Gated by the `fancy_product_page_updater_enabled` filter; release data cached in the `UPDATER_CACHE_KEY` transient. Ships in WPCS formatting (tabs, `array()`), unlike the older 4-space files. Releases are built by `.github/workflows/release.yml` on `v*.*.*` tags; `.distignore` controls the zip contents.
+- **`Github_Updater`** (`class-github-updater.php`) — Standalone (no base class). Checks the GitHub repo (`UPDATER_GITHUB_REPO`) for the latest release and serves it through the WP plugin-update system. A verbatim copy of quick-2fa's portable updater: **only the `namespace` and `@package` lines differ — never edit it here.** Fixes go into quick-2fa first and are copied across (see quick-2fa's CLAUDE.md, "Porting the GitHub updater", for the drift-check `diff`). Loaded and instantiated from `fancy-product-page.php` on admin, cron and WP-CLI requests only. Disabled by the `fancy_product_page_updater_enabled` filter (a public contract). Caches in the `fancy_product_page_github_release` transient (12h) with a `fancy_product_page_github_failed` back-off (1h); `Github_Updater::delete_cache( 'fancy-product-page' )` clears both. Reads the installed version from the plugin header and logs an error if `PP_FPP_VERSION` disagrees. Releases are built by `.github/workflows/release.yml` on `v*.*.*` tags, which refuses to build unless the header, `PP_FPP_VERSION` and the `readme.txt` stable tag all match the tag; `.distignore` controls the zip contents.
 
 - **`Component`** (`class-component.php`) — minimal base storing name/version.
 - **`Settings_Core`** (`class-settings-core.php`) — base settings controller: type-safe option get/set and render helpers.
@@ -101,7 +105,7 @@ Convention going forward: `META_` for post-meta keys, `OPT_` for option keys, `D
 - Security: nonce verification (handled by the `Meta_Box` / `Settings_Core` base classes), `manage_options` capability checks, sanitize input, escape output.
 - Keep theme-facing helpers in the global namespace (`functions.php`); keep internals namespaced (`functions-private.php`).
 
-> **Style note:** the existing code uses tight formatting (`defined('WPINC')`, short array syntax, no inner-paren spacing) rather than full WordPress-Coding-Standards spacing. Aligning to WPCS is a tracked milestone; match the surrounding file's existing style until then.
+> **Style:** WordPress Coding Standards throughout (tabs, `array()`, inner-paren spacing), as in quick-2fa. No assignment inside a condition; an `if` with `elseif` branches ends in an explicit `else`, with no-op branches holding a one-line comment (`phpcs.xml` permits these). Cast at the boundary, compare strictly, and guard object lookups (`wc_get_product()`, hook arguments) with `instanceof`.
 
 ## Commit Messages
 
@@ -116,13 +120,13 @@ Types: `feat:` `fix:` `refactor:` `chore:` `docs:` `style:` `test:`
 
 ## Reference Files
 
-- `dev-notes/00-project-tracker.md` — Current milestones, roadmap, and refactor plan.
-- `dev-notes/01-snag-list.md` — Known papercuts and small deferred defects.
-- `docs/` — Developer docs: `architecture.md`, `hooks.md`, `shortcode.md`, `usage.md`.
+- `docs/README.md` — Documentation index. **One audience per document:** `docs/usage.md` and `docs/shortcode.md` are for site administrators; `docs/developers/architecture.md` and `docs/developers/hooks-and-filters.md` for developers.
+- `dev-notes/00-project-tracker.md` — Milestones, roadmap and refactor plan (private, untracked).
+- `dev-notes/01-snag-list.md` — Known papercuts and small deferred defects (private, untracked).
 - `README.md` / `readme.txt` / `CHANGELOG.md` — Release documentation.
 - `constants.php` — Single source of truth for meta keys and configuration constants.
 
-<!-- wp-translate:begin v=1.1.0 hash=8a6ed6f189791e1c757e5c663e05c0322433fa66000aecb9ce6790ed8334c565 -->
+<!-- wp-translate:begin v=1.2.0 hash=562171e8e3562ab27909d7894626c32c46519921f9c7784bb699f12b25f7b701 -->
 ## Translating this plugin (wp-translate conventions)
 
 This plugin's `.po`/`.mo` files are generated from source by
@@ -162,14 +166,51 @@ printf( esc_html__( 'Welcome back, %s', 'fancy-product-page' ), $name );
 Never split a sentence across multiple translation calls — word order differs
 between languages.
 
-### 3. Acronyms and technical tokens
+### 3. Use `_n()` for anything that can be counted
+
+Never build a count-dependent sentence by hand, and never settle for a single
+form that reads correctly only for one number. Languages differ in how many
+plural forms they have — English and German have two, French treats 0 as
+singular, Polish and Russian have three, Japanese has one, Arabic has six — and
+`_n()` is the only way to express that.
+
+```php
+// Wrong — "1 reviews", and untranslatable into languages with other forms
+printf( esc_html__( '%d reviews', 'fancy-product-page' ), $count );
+
+// Right — wp-translate fills every form the target locale needs
+printf(
+    esc_html( _n( '%d review', '%d reviews', $count, 'fancy-product-page' ) ),
+    $count
+);
+```
+
+Keep the placeholder in **both** forms, even when the singular reads fine
+without it (`'%d review'`, not `'One review'`) — some locales use the singular
+slot for other numbers too.
+
+For a short or ambiguous countable noun, use `_nx()` — the plural equivalent of
+`_x()` — so the context reaches DeepL:
+
+```php
+// "Review" alone is ambiguous: critique? opinion? inspection?
+_nx( '%d review', '%d reviews', $count, 'customer feedback on a company', 'fancy-product-page' );
+```
+
+**Locales needing more than two forms will have their extra slots left empty for
+a human translator.** DeepL supplies a singular and a plural; nobody can invent
+Polish's third form from those, and wp-translate deliberately leaves it blank
+rather than filling it with a plausible guess. Expect to see empty
+`msgstr[2]` entries in `pl_PL` — that is correct behaviour, not a failure.
+
+### 4. Acronyms and technical tokens
 
 wp-translate keeps common acronyms (`TLS`, `API`, `SMTP`, `URL`, `ID`, `UTC`, …)
 verbatim automatically. If you introduce an unusual acronym or product name that
 must not be translated, keep it as its own standalone string so it is recognised,
 or ask the maintainer to add it to the tool's acronym list.
 
-### 4. Don't translate dates — let WordPress localise them
+### 5. Don't translate dates — let WordPress localise them
 
 Never add month or day-of-week names (full or abbreviated) as translatable
 strings. DeepL frequently mistranslates short forms like `Mon`, `Tue`, `Jan`,
@@ -187,7 +228,7 @@ $wp_locale->get_weekday_abbrev( $weekday_name ); // "Mon"
 For formatted dates, prefer `wp_date()` / `date_i18n()`, which localise month and
 day names automatically.
 
-### 5. English source dialect
+### 6. English source dialect
 
 Write source strings in standard English. wp-translate handles English targets
 locally (no DeepL): `en`/`en_US` use the source as-is, and `en_GB`/`en_AU`/… get

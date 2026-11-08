@@ -46,9 +46,10 @@ That's it. Links generated for the product (menus, related products, shop loop) 
 
 ## Choosing which content types are allowed
 
-By default you can pick **Pages** and **Posts**. Developers can broaden or narrow this with the `fancy_product_page_post_types` filter — see [hooks.md](hooks.md).
+By default you can pick **Pages** and **Posts**. Developers can broaden or narrow this with the `fancy_product_page_post_types` filter — see [hooks and filters](developers/hooks-and-filters.md).
 
 ## Notes and current limitations
 
 - The original `/product/...` URL is **301-redirected** to the fancy page, so both visitors and search engines land on the fancy page rather than WooCommerce's default single-product template.
 - The plugin has no settings page; configuration is per-product via the meta box.
+- The plugin updates itself from its GitHub releases. New versions appear in **Dashboard → Updates** like any other plugin update.
