@@ -1,68 +1,68 @@
 <?php
 /**
- * Small form / environment helpers.
- *
- * Previously provided by the bundled Power Plugins library (pp-core.php);
- * reimplemented here (only what this plugin uses) so the plugin is
- * self-contained.
+ * Form and environment helpers.
  *
  * @package Fancy_Product_Page
+ * @since 1.1.0
  */
 
 namespace Fancy_Product_Page;
 
-defined( 'WPINC' ) || die();
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || die();
 
 /**
- * Is WooCommerce loaded and available?
+ * Check whether WooCommerce is loaded.
+ *
+ * @since 1.1.0
+ *
+ * @return bool True when WooCommerce is active.
  */
 function is_woocommerce_available(): bool {
 	return function_exists( 'WC' );
 }
 
 /**
- * Generate a unique, sequential control id for labelling form fields.
+ * Get a unique control ID for labelling a form field.
+ *
+ * @since 1.1.0
+ *
+ * @return string Control ID.
  */
-function pp_fpp_get_next_control_id(): string {
-	global $pp_fpp_control_index;
+function get_next_control_id(): string {
+	static $control_index = 0;
 
-	if ( is_null( $pp_fpp_control_index ) ) {
-		$pp_fpp_control_index = 1;
-	}
+	++$control_index;
 
-	$control_id = 'fppctx' . $pp_fpp_control_index;
-
-	++$pp_fpp_control_index;
-
-	return $control_id;
+	return 'fppctx' . $control_index;
 }
 
 /**
  * Render a labelled checkbox with optional help text.
+ *
+ * @since 1.1.0
  *
  * @param string $field_name         The checkbox's name attribute.
  * @param string $label              Field label (rendered beside the checkbox).
  * @param bool   $is_checked         Whether the checkbox starts ticked.
  * @param string $help_text          Optional help text shown under the label.
  * @param string $additional_classes Space-separated extra classes for the input.
- *
  * @return string Escaped HTML.
  */
-function pp_fpp_get_checkbox_html( string $field_name, string $label, bool $is_checked = false, string $help_text = '', string $additional_classes = '' ): string {
-	$classes    = explode( ' ', $additional_classes );
-	$control_id = pp_fpp_get_next_control_id();
+function get_checkbox_html( string $field_name, string $label, bool $is_checked = false, string $help_text = '', string $additional_classes = '' ): string {
+	$control_id = get_next_control_id();
 
 	$html = sprintf(
 		'<label class="pp-checkbox-label" for="%s"><input type="checkbox" id="%s" name="%s" value="1" class="%s" %s />%s</label>',
 		esc_attr( $control_id ),
 		esc_attr( $control_id ),
 		esc_attr( $field_name ),
-		esc_attr( implode( ' ', $classes ) ),
+		esc_attr( $additional_classes ),
 		$is_checked ? 'checked' : '',
 		esc_html( $label )
 	);
 
-	if ( ! empty( $help_text ) ) {
+	if ( '' !== $help_text ) {
 		$html .= sprintf( '<span class="pp-help">%s</span>', esc_html( $help_text ) );
 	}
 
@@ -70,46 +70,31 @@ function pp_fpp_get_checkbox_html( string $field_name, string $label, bool $is_c
 }
 
 /**
- * Render a labelled <select> control with optional help text.
+ * Render a labelled select control with optional help text.
  *
- * @param string $field_name         The select's name attribute.
- * @param string $label              Field label.
- * @param array  $values             Map of option value => label (or ['label' => ...]).
- * @param string $current_value      Currently selected value.
- * @param string $help_text          Optional help text shown under the label.
- * @param string $additional_classes Space-separated extra classes for the select.
+ * @since 1.1.0
  *
+ * @param string                $field_name         The select's name attribute.
+ * @param string                $label              Field label.
+ * @param array<string, string> $values             Option value => label.
+ * @param string                $current_value      Currently selected value.
+ * @param string                $help_text          Optional help text shown under the label.
+ * @param string                $additional_classes Space-separated extra classes for the select.
  * @return string Escaped HTML.
  */
-function pp_fpp_get_select_list_html( string $field_name, string $label, array $values, string $current_value = '', string $help_text = '', string $additional_classes = '' ): string {
-	$classes    = explode( ' ', $additional_classes );
-	$control_id = pp_fpp_get_next_control_id();
+function get_select_list_html( string $field_name, string $label, array $values, string $current_value = '', string $help_text = '', string $additional_classes = '' ): string {
+	$control_id = get_next_control_id();
 
-	$html = sprintf( '<label for="%s">%s</label><span class="pp-help">%s</span>', esc_attr( $control_id ), esc_html( $label ), esc_html( $help_text ) );
+	$html  = sprintf( '<label for="%s">%s</label><span class="pp-help">%s</span>', esc_attr( $control_id ), esc_html( $label ), esc_html( $help_text ) );
+	$html .= sprintf( '<select id="%s" name="%s" class="%s">', esc_attr( $control_id ), esc_attr( $field_name ), esc_attr( $additional_classes ) );
 
-	$html .= sprintf( '<select id="%s" name="%s" class="%s">', esc_attr( $control_id ), esc_attr( $field_name ), esc_attr( implode( ' ', $classes ) ) );
-
-	foreach ( $values as $value_key => $value_meta ) {
-		$value_label = '';
-		$is_valid    = false;
-		if ( is_string( $value_meta ) ) {
-			$value_label = (string) $value_meta;
-			$is_valid    = true;
-		} elseif ( is_array( $value_meta ) && array_key_exists( 'label', $value_meta ) ) {
-			$value_label = (string) $value_meta['label'];
-			$is_valid    = true;
-		} else {
-			error_log( 'Fancy_Product_Page ' . __FUNCTION__ . ' [error]: option ' . $value_key . ' for field ' . $field_name . ' is neither a string nor an array with a label; skipped.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Logs a malformed options array passed by the caller.
-		}
-
-		if ( $is_valid ) {
-			$props = '';
-			if ( '' !== $current_value && (string) $value_key === $current_value ) {
-				$props .= ' selected';
-			}
-
-			$html .= sprintf( '<option value="%s" %s>%s</option>', esc_attr( $value_key ), $props, esc_html( $value_label ) );
-		}
+	foreach ( $values as $value_key => $value_label ) {
+		$html .= sprintf(
+			'<option value="%s"%s>%s</option>',
+			esc_attr( (string) $value_key ),
+			(string) $value_key === $current_value ? ' selected' : '',
+			esc_html( (string) $value_label )
+		);
 	}
 
 	$html .= '</select>';

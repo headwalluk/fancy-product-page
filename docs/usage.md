@@ -53,3 +53,17 @@ By default you can pick **Pages** and **Posts**. Developers can broaden or narro
 - The original `/product/...` URL is **301-redirected** to the fancy page, so both visitors and search engines land on the fancy page rather than WooCommerce's default single-product template.
 - The plugin has no settings page; configuration is per-product via the meta box.
 - The plugin updates itself from its GitHub releases. New versions appear in **Dashboard → Updates** like any other plugin update.
+- The fancy page must be **published**. If you move it to draft, make it private or bin it, the product goes back to its standard WooCommerce page until you publish it again; your choice in the meta box is kept.
+- Deleting the plugin leaves each product's choice of page in place, so reinstalling restores it. Without the plugin it does nothing.
+
+## Requirements
+
+- WordPress 6.2 or later
+- PHP 8.2 or later
+- WooCommerce 6.0 or later
+
+## Privacy
+
+The plugin stores no personal data. It keeps two settings on each product you configure: the chosen page, and whether to write structured data to it.
+
+To check for updates, it asks `api.github.com` for the latest release, at most every 12 hours. Like every request WordPress makes, that request carries your site's address in its user agent; it sends nothing about your customers or products.

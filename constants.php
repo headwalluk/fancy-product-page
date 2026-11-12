@@ -1,69 +1,85 @@
 <?php
 /**
- * Plugin constants.
- *
- * Single source of truth for the meta keys, post types, and configuration
- * values used throughout the plugin.
+ * Plugin Constants
  *
  * @package Fancy_Product_Page
+ * @since 1.0.0
  */
 
 namespace Fancy_Product_Page;
 
-defined( 'WPINC' ) || die();
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || die();
 
 /**
  * WooCommerce product post type.
  *
- * @var string
+ * @since 1.0.0
  */
 const POST_TYPE_PRODUCT = 'product';
 
 /**
- * Post-meta key storing the chosen fancy-page ID on a product.
+ * Post types that can act as a fancy page unless the fancy_product_page_post_types filter changes them.
  *
- * @var string
+ * @since 1.5.0
  */
-const META_FANCY_PRODUCT_PAGE_ID = '_fancy_product_page';
+const DEFAULT_FANCY_PAGE_POST_TYPES = array( 'page', 'post' );
 
 /**
- * Post-meta key recording that product schema must NOT be written to the
- * product's fancy page.
+ * Product post-meta keys. Both predate the plugin-prefix rule and are stored
+ * data, so they keep their names.
  *
- * Deliberately stored with inverted logic: a missing/empty value means "write
- * the schema", so existing installs keep their current behaviour and the
- * admin checkbox reads as ticked by default.
+ * META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA is set only when an administrator
+ * opts out of writing product schema to the fancy page: absent means "write it",
+ * so products saved before 1.3.0 keep their behaviour.
  *
- * @var string
+ * @since 1.0.0
  */
+const META_FANCY_PRODUCT_PAGE_ID              = '_fancy_product_page';
 const META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA = '_suppress_fancy_page_product_schema';
 
 /**
- * Name of the (positively-worded) form field backing
- * {@see META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA} in the product meta box.
+ * Meta box: the positively worded checkbox backing
+ * META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA, and the nonce.
  *
- * @var string
+ * META_BOX_ID is the 1.x class name, kept because WordPress stores each user's
+ * meta box order and collapsed state under it.
+ *
+ * @since 1.3.0
  */
-const FIELD_WRITE_FANCY_PAGE_PRODUCT_SCHEMA = 'pp_fpp_write_product_schema';
+const FIELD_WRITE_FANCY_PAGE_PRODUCT_SCHEMA = 'fancy_product_page_write_product_schema';
+const META_BOX_ID                           = 'Fancy_Product_Page\Product_Meta_Box';
+const NONCE_META_BOX_ACTION                 = 'fancy_product_page_save_meta_box';
+const NONCE_META_BOX_FIELD                  = 'fancy_product_page_meta_box_nonce';
+
+/**
+ * Admin stylesheet handle. A public contract: other code may list it as a dependency.
+ *
+ * @since 1.0.0
+ */
+const STYLE_HANDLE_ADMIN = 'fancy-product-page-admin';
 
 /**
  * Whether to convert a non-numeric `add-to-cart` request value (a SKU) to a
  * product ID before WooCommerce processes it.
  *
- * @var bool
+ * @since 1.0.0
  */
 const CONVERT_ADD_TO_CART_SKU_TO_ID = true;
 
 /**
- * HTTP status code used by the (currently disabled) product-to-page redirect.
+ * Status used by the redirect from the product's own URL to its fancy page.
  *
- * @var int
+ * @since 1.0.0
  */
 const REDIRECT_HTTP_CODE = 301;
 
 /**
- * GitHub repository (owner/name) checked for plugin updates.
+ * GitHub updater: the repository checked for releases, and the filter passed to
+ * Github_Updater. Other hooks are named literally at each call, so phpcs can
+ * check their prefix.
  *
- * @var string
+ * @since 1.2.0
  */
-const UPDATER_GITHUB_REPO = 'headwalluk/fancy-product-page';
+const UPDATER_GITHUB_REPO    = 'headwalluk/fancy-product-page';
+const FILTER_UPDATER_ENABLED = 'fancy_product_page_updater_enabled';

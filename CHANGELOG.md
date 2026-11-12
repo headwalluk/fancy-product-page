@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+**Requires PHP 8.2 and WordPress 6.2** (from 8.0 and 6.0). Sites below these stop being offered updates.
+
+### Fixed
+
+- **A fancy page in draft, private or the bin still took over the product.** The product's links and its own URL pointed at a page visitors couldn't see. Only a published page counts now; unpublishing it sends the product back to its standard page, and publishing it again restores the fancy page. Introduced in 1.0.0.
+- **WooCommerce reported the plugin as incompatible with High-Performance Order Storage**, because it never declared compatibility. It now declares both HPOS and Checkout block compatibility; it reads neither orders nor the checkout. Introduced in 1.0.0.
+- Another plugin passing a non-array to `woocommerce_structured_data_type_for_page` caused a fatal error on fancy pages. The value is now passed through untouched. Introduced in 1.0.0.
+- The `[add_to_cart_btn]` price lost WooCommerce's `<bdi>` wrapper, which keeps the currency symbol on the correct side in right-to-left languages. Introduced in 1.0.0.
+- A `qty` of zero or less in `[add_to_cart_btn]` produced a `quantity=0` link; it now counts as 1. Introduced in 1.0.0.
+- The admin stylesheet loaded only for administrators, so shop managers saw the meta box unstyled. It now loads for anyone who can edit products. Introduced in 1.0.0.
+- A `fancy_product_page_post_types` filter returning no usable post types left no page eligible. It now falls back to pages and posts, and logs an error.
+
+### Changed
+
+- Global constants renamed to match the plugin's hook prefix: `FANCY_PRODUCT_PAGE_VERSION`, `_FILE`, `_PATH`, `_URL` and `_BASENAME`. The `PP_FPP_*` names still work; see Deprecated.
+- `Plugin::instance()` returns the plugin object. The `$pp_fpp_plugin` global still holds it.
+- The meta box saves only through `save_post_product`, and also skips revisions.
+- The plugin and author links on the Plugins screen now go to the plugin's page and the author's page on headwall-hosting.com.
+- The plugin description is now translated; the plugin name, author and links stay in English.
+
+### Deprecated
+
+- The `PP_FPP_*` constants. Removed in 2.0.0. `docs/developers/architecture.md` lists each one's replacement.
+
+### Added
+
+- `uninstall.php`, which deletes the updater cache. Each product's choice of page stays in its meta.
+- `SECURITY.md`, and requirements and privacy sections in `docs/usage.md`.
+
+### Removed
+
+- The unused settings layer (`Settings`, `Settings_Core`) and the `Component` and `Meta_Box` base classes, along with `Plugin::get_settings_controller()`, `get_admin_hooks()` and the namespaced `get_settings_controller()`. No settings page ever used them.
+- `readme.txt`. `README.md`, `CHANGELOG.md` and `docs/` cover it, and the release workflow no longer checks its stable tag.
+
+---
+
 ## [1.4.1] - 2026-11-08
 
 ### Changed

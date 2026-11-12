@@ -1,130 +1,117 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Repository: public
+
+Follows the **headwall-wp-plugin** skill. Load it before working on this plugin; this file holds
+only what is specific to Fancy Product Page.
 
 ## Project Overview
 
-Fancy Product Page is a WordPress/WooCommerce plugin that lets a site administrator display a WooCommerce **product** using an ordinary WordPress **Page** (or Post) instead of the default single-product template. It hooks WooCommerce's permalink, structured-data (SEO/schema.org), and add-to-cart machinery so the substituted page behaves like a real product page for links, search engines, and the cart.
+Lets a WooCommerce product use an ordinary Page or Post as its front end. The plugin rewrites
+the product's links to the page, 301-redirects the product's own URL there, writes the product's
+schema.org JSON-LD onto the page, and makes `?add-to-cart=<SKU>` and the `[add_to_cart_btn]`
+shortcode work for building the page.
 
-The typical use case: build a rich, bespoke landing page for a product in the page editor (or a page builder such as GenerateBlocks/Elementor), associate it with a WooCommerce product, and have the whole site — menus, related-product links, shop loop — point at that page while still selling the underlying product through WooCommerce.
+- **Namespace:** `Fancy_Product_Page` · **Text domain:** `fancy-product-page` · **Prefixes:** `fancy_product_page_` (hooks, updater cache), `FANCY_PRODUCT_PAGE_` (constants). `PP_FPP_*` constants and the `$pp_fpp_plugin` global are 1.x names kept for compatibility
+- **PHP / WordPress floor:** 8.2 / 6.2. **WooCommerce:** 6.0+, `Requires Plugins: woocommerce`
+- **No build system, no settings, no stored options, no WP-CLI commands.** Configuration is per product, in post meta
 
-- **Namespace:** `Fancy_Product_Page`
-- **Text Domain:** `fancy-product-page`
-- **Constant/define prefix:** `PP_FPP_` (e.g. `PP_FPP_DIR`); function prefix `pp_fpp_`; global instance `$pp_fpp_plugin`
-- **PHP:** 8.0+ (do NOT use `declare(strict_types=1)` — breaks WordPress/WooCommerce interop)
-- **WordPress:** 6.0+, WooCommerce active (the plugin degrades gracefully when `WC()` is absent)
-- **No build system** — no npm, no Composer, no bundler. Assets are plain CSS.
-- **Self-contained** — as of v1.1.0 the plugin has no external library dependency. It previously bundled the Power Plugins library (`pp-core.php` + `pp-assets/`); the slice it used was reimplemented locally and the library deleted.
+## Request Flow
 
-This plugin is published publicly on GitHub. Tracked files must contain no client names, client URLs or client data of any kind — in code, comments, docs or commit messages. `dev-notes/` is **private and untracked** (`.gitignore`) for as long as the repository is public, and blocked from the web by `dev-notes/.htaccess`. It is the right home for client-identifying material; never copy from it into a tracked file without scrubbing, and never link a `dev-notes/` path from a tracked file.
+- `post_type_link` → `Plugin::override_product_permalink()`: a product with a fancy page links
+  to the page
+- `template_redirect` → `maybe_redirect_to_fancy_page()`: a request for the product's own URL
+  301s to the page (`wp_redirect()`, not `wp_safe_redirect()`, so domain-mapped sites work)
+- `wp` → `late_init()`: on a singular page of an eligible type, find the product whose
+  `_fancy_product_page` meta is this page and call
+  `WC()->structured_data->generate_product_data()`, unless the product opted out;
+  `woocommerce_structured_data_type_for_page` then adds `product`
+- `wp_loaded` (19, before WooCommerce at 20) → `add_to_cart_action()`: a non-numeric
+  `add-to-cart` value is looked up as a SKU and replaced with the product ID
+- `admin_init` → `Product_Meta_Box` (`add_meta_boxes_product`, `save_post_product`) and the
+  `Admin_Hooks` stylesheet
 
-## Commands
+Every lookup goes through `get_fancy_product_page_id()`, which returns 0 unless the product
+exists, the mapped post is one of `get_fancy_page_post_types()`, and it is **published**.
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `fancy-product-page.php` | Header, constants and their deprecated `PP_FPP_*` aliases, requires, updater, run |
+| `constants.php` | Meta keys, field and nonce names, meta box ID, style handle, redirect code, updater repo |
+| `functions.php` | `has_fancy_product_page()`, global namespace |
+| `functions-private.php` | `get_fancy_product_page_id()`, `get_fancy_page_post_types()` (static memo), `is_fancy_page_product_schema_suppressed()`, `log_error()` |
+| `includes/class-plugin.php` | Hooks and the front-end behaviour |
+| `includes/class-product-meta-box.php` | Meta box render, save and save checks |
+| `includes/class-admin-hooks.php` | Meta box stylesheet, for `edit_products` |
+| `includes/form-helpers.php` | `is_woocommerce_available()`, `get_select_list_html()`, `get_checkbox_html()` (declared auto-escaped in `phpcs.xml`) |
+| `includes/shortcode-add-to-cart-button.php` | `[add_to_cart_btn id sku qty]` |
+| `includes/class-github-updater.php` | Copied from Quick 2FA; change only `namespace` and `@package` |
+| `views/product-meta-box.php` | The meta box markup |
+
+## Data Storage
+
+- Product meta `_fancy_product_page`: the chosen page ID. Absent means the standard page
+- Product meta `_suppress_fancy_page_product_schema`: `'yes'` only when the admin unticked
+  "Write the structured data". Inverted so products saved before 1.3.0 keep writing schema
+- Neither key carries the plugin prefix; both predate the rule and are stored data
+- Updater transients `fancy_product_page_github_release` / `_github_failed`
+- `uninstall.php` deletes the updater cache only. Product meta stays, so reinstalling restores
+  the mappings
+
+## Public Contracts
+
+The skill's `public-contracts.md` has the rules. This plugin's:
+
+| Contract | Names |
+|----------|-------|
+| Filters | `fancy_product_page_post_types`, `fancy_product_page_updater_enabled` |
+| Theme helper | `has_fancy_product_page( int $product_id ): bool`, global namespace |
+| Shortcode | `[add_to_cart_btn id="" sku="" qty=""]` and its markup classes |
+| URL | `?add-to-cart=<SKU>` |
+| Stored keys | `_fancy_product_page`, `_suppress_fancy_page_product_schema` |
+| Style handle | `fancy-product-page-admin` |
+| Meta box ID | `Fancy_Product_Page\Product_Meta_Box`. Users' box order and collapsed state are stored under it |
+| Global constants | `FANCY_PRODUCT_PAGE_*`; `PP_FPP_*` deprecated in 1.5.0, remove in 2.0.0 |
+| Global variable | `$pp_fpp_plugin` |
+| Deprecated method | `Plugin::output_structured_data()`, deprecated 1.3.0, remove in 2.0.0 |
+
+All of them are documented in `docs/developers/hooks-and-filters.md` and
+`docs/developers/architecture.md`.
+
+## Testing
+
+`dev-notes/testing/test-plugin.php` creates its own pages and products and deletes them:
 
 ```bash
-phpcs                  # Check WordPress coding standards compliance
-phpcbf                 # Auto-fix coding standards violations
-phpcs includes/        # Check a specific directory
+wp eval-file wp-content/plugins/fancy-product-page/dev-notes/testing/test-plugin.php
 ```
 
-The config is in `phpcs.xml` — WordPress standards with prefixes `fancy_product_page`, `pp_fpp`, `Fancy_Product_Page`. The whole plugin is phpcs-clean: **no errors and no warnings**. Keep it that way — run `phpcs` before every commit, and give every `phpcs:ignore` the exact sniff name and a `-- reason`. The form helpers that escape their own output are declared in `phpcs.xml` (`customAutoEscapedFunctions`) rather than ignored at each call site.
+`get_fancy_page_post_types()` memoises per request, so filtered post-type cases are checked
+with one `wp eval` each. The redirect and the JSON-LD are checked over HTTP with `curl` against a
+temporary page and product. On the dev site, anonymous `?add-to-cart=` requests get a bare 302
+with no cart cookie even for a numeric ID, so the SKU conversion is tested in-process.
 
-There is no test suite. Behaviour is exercised against the live dev site through WP-CLI (`wp eval`) and `curl`; reset any state you touch afterwards, and test the defensive path (a wrong-typed hook argument, a bad nonce) as well as the happy one.
+It must pass before a release.
 
-## Architecture
+## Release
 
-### Entry Point & Bootstrap
-
-`fancy-product-page.php` is the main plugin file. It:
-
-1. Guards with `defined( 'WPINC' ) || die();`
-2. Defines `PP_FPP_NAME`, `PP_FPP_VERSION` (const) and path/URL defines (`PP_FPP_DIR`, `PP_FPP_URL`, `PP_FPP_ADMIN_TEMPLATES_DIR`, `PP_FPP_ASSETS_DIR`, `PP_FPP_ASSETS_URL`, …).
-3. `require_once`s files in dependency order: `constants.php`, `functions-private.php`, `functions.php`, `includes/form-helpers.php`, the base classes (`class-component.php`, `class-meta-box.php`, `class-settings-core.php`), the concrete classes, then the shortcode file.
-4. Instantiates the global `$pp_fpp_plugin = new Fancy_Product_Page\Plugin( PP_FPP_NAME, PP_FPP_VERSION )` and calls `->run()`.
-
-There is **no Composer autoloader** — classes are manually `require_once`d, dependencies first.
-
-### Core Classes (`includes/`)
-
-- **`Plugin`** (`class-plugin.php`) — Main orchestrator, extends `Component`. All hooks are registered in `run()`. Owns the lazily-constructed `Settings` and `Admin_Hooks` instances and the SEO/permalink/cart logic.
-- **`Settings`** (`class-settings.php`) — Extends `Settings_Core`. Currently a thin/vestigial shell: it can render and save a settings page but **no admin menu registers it and no options are defined yet**. `save_settings()` and `get_default_value()` are empty placeholders.
-- **`Admin_Hooks`** (`class-admin-hooks.php`) — Extends `Component`. Enqueues admin assets on the product edit/list screens.
-- **`Product_Meta_Box`** (`class-product-meta-box.php`) — Extends `Meta_Box`. Registers the "Fancy Product Page" meta box on the `product` post type and saves the selected page ID to post meta.
-- **`Github_Updater`** (`class-github-updater.php`) — Standalone (no base class). Checks the GitHub repo (`UPDATER_GITHUB_REPO`) for the latest release and serves it through the WP plugin-update system. A verbatim copy of quick-2fa's portable updater: **only the `namespace` and `@package` lines differ — never edit it here.** Fixes go into quick-2fa first and are copied across (see quick-2fa's CLAUDE.md, "Porting the GitHub updater", for the drift-check `diff`). Loaded and instantiated from `fancy-product-page.php` on admin, cron and WP-CLI requests only. Disabled by the `fancy_product_page_updater_enabled` filter (a public contract). Caches in the `fancy_product_page_github_release` transient (12h) with a `fancy_product_page_github_failed` back-off (1h); `Github_Updater::delete_cache( 'fancy-product-page' )` clears both. Reads the installed version from the plugin header and logs an error if `PP_FPP_VERSION` disagrees. Releases are built by `.github/workflows/release.yml` on `v*.*.*` tags, which refuses to build unless the header, `PP_FPP_VERSION` and the `readme.txt` stable tag all match the tag; `.distignore` controls the zip contents.
-
-- **`Component`** (`class-component.php`) — minimal base storing name/version.
-- **`Settings_Core`** (`class-settings-core.php`) — base settings controller: type-safe option get/set and render helpers.
-- **`Meta_Box`** (`class-meta-box.php`) — base meta-box class: nonce rendering and save-time verification.
-
-(`Component`, `Settings_Core`, `Meta_Box`, and the helpers in `form-helpers.php` were previously provided by `pp-core.php`; they are now local — see Milestone 1 in the tracker.)
-
-### What the plugin actually does (functional map)
-
-The behaviour is driven by hooks registered in `Plugin::run()`:
-
-1. **Permalink override** — `post_type_link` filter → `override_product_permalink()`. If a product has an associated fancy page, every link WordPress/WooCommerce generates for that product resolves to the fancy page's permalink instead of `/product/...`.
-2. **Structured data injection** — `wp` action → `late_init()`. On a singular page that *is* a fancy product page, it finds the product whose `META_FANCY_PRODUCT_PAGE_ID` meta equals the current page ID and calls `WC()->structured_data->generate_product_data( $product )` so the page emits product schema.org JSON-LD. Skipped when the product has `META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA` set (see `is_fancy_page_product_schema_suppressed()`).
-3. **Structured-data type** — `woocommerce_structured_data_type_for_page` filter → `structured_data_types_for_page()`. Adds `product` to the page's structured-data types so WooCommerce outputs the data generated in step 2.
-4. **SKU → ID add-to-cart** — `wp_loaded` (priority 19) → `add_to_cart_action()`, gated by the `CONVERT_ADD_TO_CART_SKU_TO_ID` constant. Lets `?add-to-cart=<SKU>` work by converting a non-numeric `add-to-cart` value to a product ID before WooCommerce processes it.
-5. **Add-to-cart shortcode** — `[add_to_cart_btn id="" sku="" qty=""]` (`includes/shortcode-add-to-cart-button.php`). Renders a themed add-to-cart button (resolves product by id or SKU, shows price and quantity) for embedding inside the fancy page.
-6. **Admin meta box** — `Product_Meta_Box` adds a "Fancy Product Page" selector to the product editor. The dropdown lists eligible pages/posts; saving writes the chosen ID to `META_FANCY_PRODUCT_PAGE_ID`, or deletes the meta when "Standard WooCommerce product page" (0) is chosen.
-7. **Canonical → fancy-page redirect** — `template_redirect` action → `maybe_redirect_to_fancy_page()`. A `REDIRECT_HTTP_CODE` (301) redirect from the canonical `/product/...` URL to the associated fancy page, so direct hits and search-engine crawls of the WooCommerce URL land on the fancy page. Required functionality (re-enabled in v1.4.0); the permalink override (step 1) rewrites generated links, and this catches direct requests to the underlying product URL.
-
-> **Dead code:** `output_structured_data()` is dead code, now marked `@deprecated` and calling `_deprecated_function()`. A candidate for cleanup during the refactor.
-
-### Constants (`constants.php`)
-
-All magic strings live in `constants.php` under the `Fancy_Product_Page` namespace:
-
-| Constant | Value | Purpose |
-| --- | --- | --- |
-| `POST_TYPE_PRODUCT` | `product` | WooCommerce product post type |
-| `META_FANCY_PRODUCT_PAGE_ID` | `_fancy_product_page` | Post-meta key storing the chosen page ID on a product |
-| `META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA` | `_suppress_fancy_page_product_schema` | Post-meta key set only when an admin opts *out* of writing product schema to the fancy page (reverse logic — absent means "write it") |
-| `FIELD_WRITE_FANCY_PAGE_PRODUCT_SCHEMA` | `pp_fpp_write_product_schema` | Name of the positively-worded meta-box checkbox backing the above |
-| `CONVERT_ADD_TO_CART_SKU_TO_ID` | `true` | Enable `?add-to-cart=<SKU>` support |
-| `REDIRECT_HTTP_CODE` | `301` | Status used by `maybe_redirect_to_fancy_page()` (canonical → fancy-page redirect) |
-
-Convention going forward: `META_` for post-meta keys, `OPT_` for option keys, `DEF_` for defaults (mirrors bullfix-erp).
-
-### Public / Private functions
-
-- `functions.php` — public, theme-facing helpers in the **global** namespace (e.g. `has_fancy_product_page( int $product_id ): bool`).
-- `functions-private.php` — namespaced internal helpers: `get_settings_controller()`, `get_fancy_product_page_id()`, `get_fancy_page_post_types()`.
-
-### Extensibility (filters provided)
-
-- `fancy_product_page_post_types` — array of post types eligible to act as a fancy page. Default `['page', 'post']`.
-
-## Key Conventions
-
-- Register all hooks in `Plugin::run()`; implement the callbacks in the relevant class.
-- Use constants from `constants.php` — never hardcode meta keys, post types, or magic values.
-- Resolve a product's fancy page only through `get_fancy_product_page_id()`; don't read the meta key directly elsewhere.
-- Degrade gracefully when WooCommerce is absent — guard with `function_exists( 'WC' )` / `is_woocommerce_available()`.
-- Admin templates live in `admin-templates/` and are `include`d from within a class method that has set up `$post` / `$settings` in scope.
-- Security: nonce verification (handled by the `Meta_Box` / `Settings_Core` base classes), `manage_options` capability checks, sanitize input, escape output.
-- Keep theme-facing helpers in the global namespace (`functions.php`); keep internals namespaced (`functions-private.php`).
-
-> **Style:** WordPress Coding Standards throughout (tabs, `array()`, inner-paren spacing), as in quick-2fa. No assignment inside a condition; an `if` with `elseif` branches ends in an explicit `else`, with no-op branches holding a one-line comment (`phpcs.xml` permits these). Cast at the boundary, compare strictly, and guard object lookups (`wc_get_product()`, hook arguments) with `instanceof`.
-
-## Commit Messages
-
-```
-type: brief description
-
-- Detail 1
-- Detail 2
-```
-
-Types: `feat:` `fix:` `refactor:` `chore:` `docs:` `style:` `test:`
+Follow the skill's `release.md` (public). The updater's repository is `UPDATER_GITHUB_REPO` in
+`constants.php`. The default branch is `main`.
 
 ## Reference Files
 
-- `docs/README.md` — Documentation index. **One audience per document:** `docs/usage.md` and `docs/shortcode.md` are for site administrators; `docs/developers/architecture.md` and `docs/developers/hooks-and-filters.md` for developers.
-- `dev-notes/00-project-tracker.md` — Milestones, roadmap and refactor plan (private, untracked).
-- `dev-notes/01-snag-list.md` — Known papercuts and small deferred defects (private, untracked).
-- `README.md` / `readme.txt` / `CHANGELOG.md` — Release documentation.
-- `constants.php` — Single source of truth for meta keys and configuration constants.
+`docs/` (tracked, public):
+
+- `docs/usage.md`, `docs/shortcode.md`: site administrators
+- `docs/developers/architecture.md`, `docs/developers/hooks-and-filters.md`: developers
+
+`dev-notes/` (private, untracked):
+
+- `dev-notes/00-project-tracker.md`: milestones and roadmap
+- `dev-notes/01-snag-list.md`: small deferred defects
+- `dev-notes/testing/`: the harness
 
 <!-- wp-translate:begin v=1.2.0 hash=562171e8e3562ab27909d7894626c32c46519921f9c7784bb699f12b25f7b701 -->
 ## Translating this plugin (wp-translate conventions)

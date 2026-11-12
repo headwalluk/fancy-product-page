@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Fancy Product Page 1.3.0\n"
+"Project-Id-Version: Fancy Product Page 1.4.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/fancy-product-page\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-20T20:54:18+00:00\n"
+"POT-Creation-Date: 2026-11-12T13:18:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: fancy-product-page\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #. Plugin URI of the plugin
 #: fancy-product-page.php
-msgid "https://github.com/headwalluk/fancy-product-page"
+msgid "https://headwall-hosting.com/plugins/fancy-product-page/"
 msgstr ""
 
 #. Description of the plugin
@@ -36,51 +36,41 @@ msgstr ""
 
 #. Author URI of the plugin
 #: fancy-product-page.php
-msgid "https://headwall-hosting.com"
+msgid "https://headwall-hosting.com/a-web-guys-blog/"
 msgstr ""
 
-#: admin-templates/product-meta-box.php:21
+#: includes/shortcode-add-to-cart-button.php:77
+msgid "Failed to determine the product"
+msgstr ""
+
+#: includes/shortcode-add-to-cart-button.php:83
+msgctxt "verb; button label on a shop button"
+msgid "Add to cart"
+msgstr ""
+
+#: views/product-meta-box.php:22
 msgctxt "dropdown option; use no fancy page"
 msgid "Standard WooCommerce product page"
 msgstr ""
 
-#: admin-templates/product-meta-box.php:36
+#: views/product-meta-box.php:38
 msgctxt "placeholder for a page/post with an empty title"
 msgid "No title"
 msgstr ""
 
-#: admin-templates/product-meta-box.php:49
+#: views/product-meta-box.php:51
 msgctxt "meta box field label; the page that replaces this product page"
 msgid "Fancy product page"
 msgstr ""
 
-#: admin-templates/product-meta-box.php:52
+#: views/product-meta-box.php:54
 msgid "Choose the page or post to use for this product in the frontend."
 msgstr ""
 
-#: admin-templates/product-meta-box.php:67
+#: views/product-meta-box.php:64
 msgid "Write the structured data to the fancy product page?"
 msgstr ""
 
-#: admin-templates/product-meta-box.php:69
+#: views/product-meta-box.php:66
 msgid "Leave this checked unless something else on the page (an SEO plugin, or hand-written markup) already outputs product schema.org data."
-msgstr ""
-
-#: includes/class-settings.php:41
-msgctxt "permission error shown in place of the settings page"
-msgid "Not authorized"
-msgstr ""
-
-#: includes/class-settings.php:63
-msgctxt "verb; form submit button label"
-msgid "Save Changes"
-msgstr ""
-
-#: includes/shortcode-add-to-cart-button.php:75
-msgid "Failed to determine the product"
-msgstr ""
-
-#: includes/shortcode-add-to-cart-button.php:81
-msgctxt "verb; button label on a shop button"
-msgid "Add to cart"
 msgstr ""

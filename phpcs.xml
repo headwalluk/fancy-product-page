@@ -2,6 +2,9 @@
 <ruleset name="Fancy Product Page Standards">
 	<description>WordPress Coding Standards for the Fancy Product Page Plugin</description>
 
+	<config name="minimum_wp_version" value="6.2"/>
+	<config name="testVersion" value="8.2-"/>
+
 	<file>.</file>
 
 	<!-- Exclude patterns -->
@@ -35,8 +38,17 @@
 	<rule ref="WordPress.Security.EscapeOutput">
 		<properties>
 			<property name="customAutoEscapedFunctions" type="array">
-				<element value="pp_fpp_get_select_list_html"/>
-				<element value="pp_fpp_get_checkbox_html"/>
+				<element value="get_select_list_html"/>
+				<element value="get_checkbox_html"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- WooCommerce's own capability for editing products. -->
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="edit_products"/>
 			</property>
 		</properties>
 	</rule>

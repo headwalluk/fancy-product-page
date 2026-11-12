@@ -1,34 +1,27 @@
 <?php
 /**
- * Private, namespaced helper functions for internal plugin use.
+ * Private helper functions. Internal to the plugin: sites should use the hooks
+ * and helpers in docs/developers/hooks-and-filters.md instead.
  *
  * @package Fancy_Product_Page
+ * @since 1.0.0
  */
 
 namespace Fancy_Product_Page;
 
-defined( 'WPINC' ) || die();
-
-/**
- * Get the plugin's settings controller from the global plugin instance.
- *
- * @return Settings The settings controller.
- */
-function get_settings_controller() {
-	global $pp_fpp_plugin;
-	return $pp_fpp_plugin->get_settings_controller();
-}
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || die();
 
 /**
  * Resolve the fancy page/post ID associated with a product.
  *
- * When no product ID is given and the current request is a singular product,
- * the current product is used. Returns 0 when WooCommerce is unavailable, the
- * product is invalid, no mapping exists, or the mapped post type is not an
- * allowed fancy-page type.
+ * With no product ID, uses the current product on a singular product request.
+ * Returns 0 when WooCommerce is unavailable, the product is invalid, no mapping
+ * exists, the mapped post isn't an eligible type, or it isn't published.
+ *
+ * @since 1.0.0
  *
  * @param int $product_id WooCommerce product ID. Defaults to the current product.
- *
  * @return int The associated page/post ID, or 0 if none.
  */
 function get_fancy_product_page_id( int $product_id = 0 ): int {
@@ -40,7 +33,7 @@ function get_fancy_product_page_id( int $product_id = 0 ): int {
 
 	$fancy_product_page_id = $product_id > 0 ? (int) get_post_meta( $product_id, META_FANCY_PRODUCT_PAGE_ID, true ) : 0;
 
-	if ( ! function_exists( 'WC' ) ) {
+	if ( ! is_woocommerce_available() ) {
 		// WooCommerce is not active.
 	} elseif ( $product_id <= 0 ) {
 		// No product to look up.
@@ -50,6 +43,8 @@ function get_fancy_product_page_id( int $product_id = 0 ): int {
 		// No fancy page mapped.
 	} elseif ( ! in_array( get_post_type( $fancy_product_page_id ), get_fancy_page_post_types(), true ) ) {
 		// Mapped post is not an eligible fancy-page type.
+	} elseif ( 'publish' !== get_post_status( $fancy_product_page_id ) ) {
+		// A draft, private or trashed page would send visitors to a page they can't see.
 	} else {
 		$post_id = $fancy_product_page_id;
 	}
@@ -58,40 +53,66 @@ function get_fancy_product_page_id( int $product_id = 0 ): int {
 }
 
 /**
- * Should product structured data be kept off this product's fancy page?
+ * Check whether product structured data should be kept off this product's fancy page.
  *
- * Reverse logic by design: the {@see META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA}
- * meta only exists when an administrator has opted out, so products saved
- * before this option existed continue to emit their schema.
+ * @since 1.3.0
  *
  * @param int $product_id WooCommerce product ID.
- *
  * @return bool True when the schema should be suppressed.
  */
 function is_fancy_page_product_schema_suppressed( int $product_id ): bool {
-	if ( $product_id <= 0 ) {
-		return false;
+	$is_suppressed = false;
+
+	if ( $product_id > 0 ) {
+		$is_suppressed = ! empty( get_post_meta( $product_id, META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA, true ) );
 	}
 
-	return ! empty( get_post_meta( $product_id, META_SUPPRESS_FANCY_PAGE_PRODUCT_SCHEMA, true ) );
+	return $is_suppressed;
 }
 
 /**
  * Get the post types eligible to act as a fancy product page.
  *
- * Defaults to `page` and `post`, and is filterable via the
- * `fancy_product_page_post_types` filter. The result is memoised in a global
- * for the duration of the request.
+ * Passed through the fancy_product_page_post_types filter once per request.
+ * Non-string entries are dropped; an empty or non-array result falls back to the defaults.
  *
- * @return array List of post type slugs.
+ * @since 1.0.0
+ *
+ * @return string[] Post type slugs.
  */
 function get_fancy_page_post_types(): array {
-	global $pp_fpp_post_types;
-	if ( is_null( $pp_fpp_post_types ) ) {
-		$pp_fpp_post_types = array( 'page', 'post' );
+	static $post_types = null;
 
-		$pp_fpp_post_types = (array) apply_filters( 'fancy_product_page_post_types', $pp_fpp_post_types );
+	if ( null === $post_types ) {
+		/**
+		 * Filter the post types that can be chosen as a product's fancy page.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string[] $post_types Post type slugs. Default array( 'page', 'post' ).
+		 */
+		$filtered = apply_filters( 'fancy_product_page_post_types', DEFAULT_FANCY_PAGE_POST_TYPES );
+
+		// 1.x cast the result to an array, so a single post type name as a string still works.
+		$post_types = is_string( $filtered ) ? array( $filtered ) : $filtered;
+		$post_types = is_array( $post_types ) ? array_values( array_filter( $post_types, 'is_string' ) ) : array();
+
+		if ( empty( $post_types ) ) {
+			log_error( 'fancy_product_page_post_types returned no post type names; using page and post.' );
+			$post_types = DEFAULT_FANCY_PAGE_POST_TYPES;
+		}
 	}
 
-	return $pp_fpp_post_types;
+	return $post_types;
+}
+
+/**
+ * Log a genuine failure. Always logs, whatever WP_DEBUG says.
+ *
+ * @since 1.5.0
+ *
+ * @param string $message Message to log.
+ */
+function log_error( string $message ): void {
+	error_log( 'Fancy Product Page: ' . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Errors must reach the server log without WP_DEBUG.
 }

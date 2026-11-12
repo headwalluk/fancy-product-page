@@ -10,25 +10,21 @@ msgstr ""
 "POT-Creation-Date: 2026-06-10T10:30:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Language: it_IT\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: fancy-product-page\n"
 
 #. Plugin Name of the plugin
 #: fancy-product-page.php
 msgid "Fancy Product Page"
-msgstr "Pagina del prodotto di lusso"
-
-#. Plugin URI of the plugin
-#: fancy-product-page.php
-msgid "https://github.com/headwalluk/fancy-product-page"
-msgstr "https://github.com/headwalluk/fancy-product-page"
+msgstr "Fancy Product Page"
 
 #. Description of the plugin
 #: fancy-product-page.php
 msgid "Display a WooCommerce product using an ordinary WordPress Page or Post in place of the default single-product template."
 msgstr "Visualizza un prodotto WooCommerce utilizzando una normale pagina o un normale articolo di WordPress al posto del modello predefinito per la pagina del singolo prodotto."
 
-#: includes/shortcode-add-to-cart-button.php:75
+#: includes/shortcode-add-to-cart-button.php:77
 msgid "Failed to determine the product"
 msgstr "Impossibile identificare il prodotto"
 
@@ -37,49 +33,44 @@ msgstr "Impossibile identificare il prodotto"
 msgid "Paul Faulkner"
 msgstr "Paul Faulkner"
 
-#. Author URI of the plugin
-#: fancy-product-page.php
-msgid "https://headwall-hosting.com"
-msgstr "https://headwall-hosting.com"
-
-#: admin-templates/product-meta-box.php:21
+#: views/product-meta-box.php:22
 msgctxt "dropdown option; use no fancy page"
 msgid "Standard WooCommerce product page"
 msgstr "Pagina prodotto standard di WooCommerce"
 
-#: admin-templates/product-meta-box.php:36
+#: views/product-meta-box.php:38
 msgctxt "placeholder for a page/post with an empty title"
 msgid "No title"
 msgstr "Senza titolo"
 
-#: admin-templates/product-meta-box.php:49
+#: views/product-meta-box.php:51
 msgctxt "meta box field label; the page that replaces this product page"
 msgid "Fancy product page"
 msgstr "Pagina del prodotto personalizzata"
 
-#: admin-templates/product-meta-box.php:52
+#: views/product-meta-box.php:54
 msgid "Choose the page or post to use for this product in the frontend."
 msgstr "Scegli la pagina o il post da utilizzare per questo prodotto nell'interfaccia pubblica."
 
-#: admin-templates/product-meta-box.php:67
+#: views/product-meta-box.php:64
 msgid "Write the structured data to the fancy product page?"
 msgstr "Inserire i dati strutturati nella pagina dedicata al prodotto di punta?"
 
-#: admin-templates/product-meta-box.php:69
+#: views/product-meta-box.php:66
 msgid "Leave this checked unless something else on the page (an SEO plugin, or hand-written markup) already outputs product schema.org data."
 msgstr "Lascia questa opzione selezionata, a meno che un altro elemento della pagina (un plugin SEO o un codice scritto manualmente) non generi già i dati schema.org relativi al prodotto."
 
-#: includes/class-settings.php:41
-msgctxt "permission error shown in place of the settings page"
-msgid "Not authorized"
-msgstr "Non autorizzato"
-
-#: includes/class-settings.php:63
-msgctxt "verb; form submit button label"
-msgid "Save Changes"
-msgstr "Salva modifiche"
-
-#: includes/shortcode-add-to-cart-button.php:81
+#: includes/shortcode-add-to-cart-button.php:83
 msgctxt "verb; button label on a shop button"
 msgid "Add to cart"
 msgstr "Aggiungi al carrello"
+
+#. Plugin URI of the plugin
+#: fancy-product-page.php
+msgid "https://headwall-hosting.com/plugins/fancy-product-page/"
+msgstr "https://headwall-hosting.com/plugins/fancy-product-page/"
+
+#. Author URI of the plugin
+#: fancy-product-page.php
+msgid "https://headwall-hosting.com/a-web-guys-blog/"
+msgstr "https://headwall-hosting.com/a-web-guys-blog/"

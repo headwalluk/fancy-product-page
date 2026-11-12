@@ -1,8 +1,8 @@
 # Fancy Product Page
 
-![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-21759B?logo=wordpress&logoColor=white)
+![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
 ![WooCommerce](https://img.shields.io/badge/WooCommerce-required-7F54B3?logo=woocommerce&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-8.0%2B-777BB4?logo=php&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
 ![License](https://img.shields.io/badge/license-GPLv2%20or%20later-blue)
 
 A WordPress / WooCommerce plugin that lets you display a WooCommerce **product** using an ordinary WordPress **Page** (or Post) in place of the default single-product template.
@@ -19,9 +19,9 @@ Build a rich, bespoke landing page for a product in the page editor (or a page b
 
 ## Requirements
 
-- WordPress 6.0+
+- WordPress 6.2+
 - WooCommerce (active)
-- PHP 8.0+
+- PHP 8.2+
 
 ## Installation
 
