@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-12
+
 **Requires PHP 8.2 and WordPress 6.2** (from 8.0 and 6.0). Sites below these stop being offered updates.
 
 ### Fixed

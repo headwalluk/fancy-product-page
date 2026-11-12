@@ -3,7 +3,7 @@
  * Plugin Name:       Fancy Product Page
  * Plugin URI:        https://headwall-hosting.com/plugins/fancy-product-page/
  * Description:       Display a WooCommerce product using an ordinary WordPress Page or Post in place of the default single-product template.
- * Version:           1.4.1
+ * Version:           1.5.0
  * Requires at least: 6.2
  * Requires PHP:      8.2
  * Requires Plugins:  woocommerce
@@ -22,7 +22,7 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || die();
 
-define( 'FANCY_PRODUCT_PAGE_VERSION', '1.4.1' );
+define( 'FANCY_PRODUCT_PAGE_VERSION', '1.5.0' );
 define( 'FANCY_PRODUCT_PAGE_FILE', __FILE__ );
 define( 'FANCY_PRODUCT_PAGE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FANCY_PRODUCT_PAGE_URL', plugin_dir_url( __FILE__ ) );
